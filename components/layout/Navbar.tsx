@@ -3,7 +3,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { useState, useEffect } from "react";
-import { Menu, X, BookOpen, GraduationCap } from "lucide-react";
+import { Menu, X, BookOpen, GraduationCap, CalendarDays } from "lucide-react";
 
 const NAV_ITEMS = [
   { label: "About", id: "about" },
@@ -70,6 +70,16 @@ export default function Navbar() {
                 <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-[#c9a84c] transition-all duration-300 group-hover:w-full" />
               </button>
             ))}
+
+            <Link
+              href="/events"
+              className="flex items-center gap-1.5 hover:text-[#c9a84c] transition-colors duration-200 relative group"
+            >
+              <CalendarDays className="w-3.5 h-3.5" />
+              Events
+              <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-[#c9a84c] transition-all duration-300 group-hover:w-full" />
+            </Link>
+
             <Link
               href="/academy"
               className="flex items-center gap-1.5 hover:text-[#c9a84c] transition-colors duration-200 relative group"
@@ -120,6 +130,15 @@ export default function Navbar() {
               {item.label}
             </button>
           ))}
+
+          <Link
+            href="/events"
+            onClick={() => setIsMobileMenuOpen(false)}
+            className="w-full py-4 px-4 text-sm font-semibold uppercase tracking-widest text-[#b8b0a8] hover:text-[#c9a84c] hover:bg-[#1a1a1a] rounded-xl transition-all touch-manipulation flex items-center gap-2"
+          >
+            <CalendarDays className="w-4 h-4" /> Events
+          </Link>
+
           <Link
             href="/academy"
             onClick={() => setIsMobileMenuOpen(false)}
