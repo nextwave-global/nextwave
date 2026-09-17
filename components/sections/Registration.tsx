@@ -38,17 +38,14 @@ export default function Registration() {
   const [message, setMessage] = useState("");
 
   useEffect(() => {
-    fetch("/api/events")
+    fetch("/api/events", { cache: "no-store" })
       .then((r) => r.json())
       .then((d) => {
         const events: DbEvent[] = d.events ?? [];
-        // Prefer featured, else first upcoming/live
         const featured = events.find((e) => e.is_featured);
-        const upcoming = events.find((e) => {
-          const s = computedStatus(e);
-          return s === "upcoming" || s === "live";
-        });
-        setEvent(featured ?? upcoming ?? null);
+        const live = events.find((e) => computedStatus(e) === "live");
+        const upcoming = events.find((e) => computedStatus(e) === "upcoming");
+        setEvent(featured ?? live ?? upcoming ?? null);
       })
       .catch(console.error)
       .finally(() => setLoadingEvent(false));
@@ -79,24 +76,19 @@ export default function Registration() {
     }
   };
 
-  // ---------- Loading skeleton ----------
   if (loadingEvent) {
     return (
       <section
         id="register"
         className="py-12 md:py-24 px-4 sm:px-6 bg-[#0d0d0d]"
       >
-        <div className="max-w-6xl mx-auto">
-          <div className="animate-pulse grid lg:grid-cols-2 gap-8">
-            <div className="bg-[#1a1a1a] rounded-2xl h-96" />
-            <div className="bg-[#1a1a1a] rounded-2xl h-96" />
-          </div>
+        <div className="max-w-6xl mx-auto flex justify-center py-20">
+          <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-[#c9a84c]" />
         </div>
       </section>
     );
   }
 
-  // ---------- Empty state ----------
   if (!event) {
     return (
       <section
@@ -151,7 +143,9 @@ export default function Registration() {
             ) : (
               <Sparkles size={14} />
             )}
-            <span>{eStatus === "live" ? "Live Now" : "Featured Event"}</span>
+            <span>
+              {eStatus === "live" ? "Live Now" : "Featured Event"}
+            </span>
           </div>
           <h2 className="text-3xl md:text-5xl font-bold mb-3 text-white">
             {eStatus === "live" ? "Join" : "Register"}{" "}
@@ -239,7 +233,6 @@ export default function Registration() {
                 </div>
               </div>
 
-              {/* Countdown */}
               {event.starts_at && eStatus === "upcoming" && (
                 <div className="mt-5">
                   <p className="text-[10px] uppercase tracking-wider text-[#7a7270] mb-2 font-semibold">
@@ -249,7 +242,6 @@ export default function Registration() {
                 </div>
               )}
 
-              {/* Add to Calendar + WhatsApp */}
               <div className="mt-5 space-y-2">
                 {eStatus !== "past" && <AddToCalendar event={event} />}
                 {event.whatsapp_url && (
@@ -284,7 +276,7 @@ export default function Registration() {
                   You&apos;re registered! 🎉
                 </h4>
                 <p className="text-sm text-[#b8b0a8] mb-6">{message}</p>
-                <div className="flex flex-col gap-2">
+                <div className="flex flex-col gap-2 items-center">
                   {event.whatsapp_url && (
                     <a
                       href={event.whatsapp_url}
@@ -293,7 +285,6 @@ export default function Registration() {
                       className="inline-flex items-center justify-center gap-2 px-5 py-3 bg-[#c9a84c] hover:bg-[#a8873a] text-[#0d0d0d] font-bold rounded-full text-sm transition-all touch-manipulation"
                     >
                       <MessageCircle className="w-4 h-4" /> Join WhatsApp
-                      Community
                     </a>
                   )}
                   <AddToCalendar event={event} />
@@ -400,7 +391,8 @@ export default function Registration() {
                       </>
                     ) : (
                       <>
-                        Complete Registration <ArrowRight className="w-5 h-5" />
+                        Complete Registration
+                        <ArrowRight className="w-5 h-5" />
                       </>
                     )}
                   </button>
