@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { prisma } from "@/lib/prisma";
+import { supabaseAdmin } from "@/lib/supabase-server";
 import { getEmailService } from "@/lib/resend";
 
 export async function PATCH(
@@ -8,46 +8,40 @@ export async function PATCH(
 ) {
   try {
     const { id } = await params;
-    const body = await request.json();
-    const { status } = body;
+    const { status } = await request.json();
 
-    if (!status) {
+    if (!status)
       return NextResponse.json(
         { error: "Status is required" },
         { status: 400 },
       );
-    }
-
-    const validStatuses = ["confirmed", "cancelled", "waitlisted"];
-    if (!validStatuses.includes(status)) {
+    const valid = ["confirmed", "cancelled", "waitlisted"];
+    if (!valid.includes(status))
       return NextResponse.json({ error: "Invalid status" }, { status: 400 });
-    }
 
-    const registration = await prisma.registration.update({
-      where: { id },
-      data: { status },
-      include: {
-        event: true,
-      },
-    });
+    const { data: registration, error } = await supabaseAdmin
+      .from("registrations")
+      .update({ status })
+      .eq("id", id)
+      .select(
+        "id, full_name, email, phone, status, event_id, event:events(id,title,date,venue)",
+      )
+      .single();
 
-    // Send status update email if needed (using Resend)
+    if (error || !registration) throw error ?? new Error("Not found");
+
     if (status === "confirmed" || status === "cancelled") {
       try {
         const emailService = getEmailService();
-
-        const emailData = {
+        await emailService.sendConfirmationEmail({
           email: registration.email,
-          fullName: registration.fullName,
-          eventTitle: registration.event.title,
-          eventDate: registration.event.date,
-          eventVenue: registration.event.venue,
-        };
-
-        await emailService.sendConfirmationEmail(emailData);
-        console.log(`📧 Status update email sent for ${registration.email}`);
-      } catch (emailError) {
-        console.error("⚠️ Email sending failed:", emailError);
+          fullName: registration.full_name,
+          eventTitle: (registration as any).event?.title ?? "Event",
+          eventDate: (registration as any).event?.date ?? "",
+          eventVenue: (registration as any).event?.venue ?? "",
+        });
+      } catch (err) {
+        console.error("⚠️ Status email failed:", err);
       }
     }
 

@@ -1,27 +1,25 @@
 "use client";
 
-import React from "react";
 import { SocialIcon } from "react-social-icons";
-import { Mail, MapPin, ArrowUp, Sparkles, BookOpen } from "lucide-react";
+import {
+  Mail,
+  MapPin,
+  ArrowUp,
+  Sparkles,
+  BookOpen,
+  GraduationCap,
+} from "lucide-react";
 import Link from "next/link";
 
 export default function Footer() {
   const scrollToSection = (id: string) => {
-    const section = document.getElementById(id);
-    if (section) {
-      section.scrollIntoView({ behavior: "smooth" });
-    }
-  };
-
-  const scrollToTop = () => {
-    window.scrollTo({ top: 0, behavior: "smooth" });
+    document.getElementById(id)?.scrollIntoView({ behavior: "smooth" });
   };
 
   return (
     <footer className="bg-[#0d0d0d] border-t border-[#333333] pt-12 pb-6 px-4 sm:px-6 overflow-hidden">
       <div className="max-w-7xl mx-auto w-full">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8 md:gap-12 mb-12">
-          {/* Brand Section */}
           <div>
             <Link href="/" className="inline-block">
               <h3 className="text-xl md:text-2xl font-bold mb-3 uppercase tracking-tighter text-white">
@@ -30,8 +28,7 @@ export default function Footer() {
             </Link>
             <p className="text-[#7a7270] max-w-sm mb-4 leading-relaxed text-sm">
               Equipping students with the knowledge, skills, and mindset to
-              thrive academically and professionally. Bridging the gap between
-              education and real-world opportunities.
+              thrive academically and professionally.
             </p>
             <div className="flex gap-3">
               <SocialIcon
@@ -39,7 +36,6 @@ export default function Footer() {
                 bgColor="#0077B5"
                 fgColor="#FFFFFF"
                 style={{ height: 40, width: 40 }}
-                className="hover:scale-110 transition-transform touch-manipulation"
                 target="_blank"
                 rel="noopener noreferrer"
               />
@@ -48,7 +44,6 @@ export default function Footer() {
                 bgColor="#0088CC"
                 fgColor="#FFFFFF"
                 style={{ height: 40, width: 40 }}
-                className="hover:scale-110 transition-transform touch-manipulation"
                 target="_blank"
                 rel="noopener noreferrer"
               />
@@ -57,14 +52,12 @@ export default function Footer() {
                 bgColor="#E4405F"
                 fgColor="#FFFFFF"
                 style={{ height: 40, width: 40 }}
-                className="hover:scale-110 transition-transform touch-manipulation"
                 target="_blank"
                 rel="noopener noreferrer"
               />
             </div>
           </div>
 
-          {/* Connect With Us Section */}
           <div>
             <h4 className="font-bold mb-4 text-xs uppercase tracking-widest text-[#c9a84c]">
               Connect With Us
@@ -90,6 +83,15 @@ export default function Footer() {
                 </span>
               </li>
               <li className="flex items-center gap-3">
+                <GraduationCap size={16} className="text-[#c9a84c] shrink-0" />
+                <Link
+                  href="/academy"
+                  className="hover:text-[#c9a84c] transition"
+                >
+                  Join the Academy Waitlist
+                </Link>
+              </li>
+              <li className="flex items-center gap-3">
                 <BookOpen size={16} className="text-[#c9a84c] shrink-0" />
                 <Link
                   href="/library"
@@ -102,37 +104,41 @@ export default function Footer() {
           </div>
         </div>
 
-        {/* Bottom Bar */}
         <div className="pt-6 border-t border-[#333333] flex flex-col md:flex-row justify-between items-center gap-6 text-xs font-semibold text-[#7a7270] uppercase tracking-widest text-center">
-          <p className="text-center md:text-left">
+          <p>
             © {new Date().getFullYear()} Nextwave Global. All Rights Reserved.
           </p>
-
-          <div className="flex flex-row items-center justify-center gap-4 sm:gap-6 flex-wrap">
+          <div className="flex items-center gap-4 sm:gap-6 flex-wrap justify-center">
             <button
               onClick={() => scrollToSection("about")}
-              className="hover:text-[#c9a84c] transition touch-manipulation whitespace-nowrap leading-none"
+              className="hover:text-[#c9a84c] transition touch-manipulation"
             >
               About
             </button>
             <button
               onClick={() => scrollToSection("programs")}
-              className="hover:text-[#c9a84c] transition touch-manipulation whitespace-nowrap leading-none"
+              className="hover:text-[#c9a84c] transition touch-manipulation"
             >
               Programs
             </button>
             <Link
+              href="/academy"
+              className="hover:text-[#c9a84c] transition touch-manipulation"
+            >
+              Academy
+            </Link>
+            <Link
               href="/library"
-              className="inline-flex items-center hover:text-[#c9a84c] transition touch-manipulation whitespace-nowrap leading-none"
+              className="hover:text-[#c9a84c] transition touch-manipulation"
             >
               Library
             </Link>
             <button
-              onClick={scrollToTop}
-              className="p-2 bg-[#1a1a1a] hover:bg-[#c9a84c] rounded-full transition-colors touch-manipulation shrink-0"
+              onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
+              className="p-2 bg-[#1a1a1a] hover:bg-[#c9a84c] rounded-full transition-colors touch-manipulation"
               aria-label="Scroll to top"
             >
-              <ArrowUp className="w-4 h-4 text-[#b8b0a8] hover:text-[#0d0d0d]" />
+              <ArrowUp className="w-4 h-4 text-[#b8b0a8]" />
             </button>
           </div>
         </div>

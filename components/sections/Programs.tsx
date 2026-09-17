@@ -1,17 +1,10 @@
 "use client";
-
 import Image from "next/image";
 import { PROGRAMS } from "@/data/programs";
-import { StatusBadge } from "@/components/ui/StatusBadge";
 import { CalendarIcon, ClockIcon, LocationIcon } from "@/components/ui/Icons";
 import { useRef, useState, useEffect } from "react";
-import {
-  ChevronLeft,
-  ChevronRight,
-  Sparkles,
-  Users,
-  CheckCircle,
-} from "lucide-react";
+import { ChevronLeft, ChevronRight, Sparkles, CheckCircle } from "lucide-react";
+import { UPCOMING_EVENTS } from "@/data/events";
 
 export default function Programs() {
   const scrollContainerRef = useRef<HTMLDivElement>(null);
@@ -28,104 +21,83 @@ export default function Programs() {
   }, []);
 
   const checkScroll = () => {
-    const container = scrollContainerRef.current;
-    if (container) {
-      const { scrollLeft, scrollWidth, clientWidth } = container;
-      setShowLeftArrow(scrollLeft > 20);
-      setShowRightArrow(scrollLeft < scrollWidth - clientWidth - 20);
-
-      const cardWidth = container.children[0]?.clientWidth || 0;
-      const gap = 16;
-      const index = Math.round(scrollLeft / (cardWidth + gap));
-      setActiveIndex(index);
-    }
+    const c = scrollContainerRef.current;
+    if (!c) return;
+    setShowLeftArrow(c.scrollLeft > 20);
+    setShowRightArrow(c.scrollLeft < c.scrollWidth - c.clientWidth - 20);
+    const cardWidth = (c.children[0] as HTMLElement)?.clientWidth || 0;
+    setActiveIndex(Math.round(c.scrollLeft / (cardWidth + 16)));
   };
 
   useEffect(() => {
-    const container = scrollContainerRef.current;
-    if (container) {
-      container.addEventListener("scroll", checkScroll);
-      checkScroll();
-      window.addEventListener("resize", checkScroll);
-      return () => {
-        container.removeEventListener("scroll", checkScroll);
-        window.removeEventListener("resize", checkScroll);
-      };
-    }
+    const c = scrollContainerRef.current;
+    if (!c) return;
+    c.addEventListener("scroll", checkScroll);
+    checkScroll();
+    window.addEventListener("resize", checkScroll);
+    return () => {
+      c.removeEventListener("scroll", checkScroll);
+      window.removeEventListener("resize", checkScroll);
+    };
   }, []);
 
-  const scroll = (direction: "left" | "right") => {
-    const container = scrollContainerRef.current;
-    if (container) {
-      const scrollAmount = container.clientWidth * 0.8;
-      container.scrollBy({
-        left: direction === "left" ? -scrollAmount : scrollAmount,
-        behavior: "smooth",
-      });
-    }
+  const scroll = (dir: "left" | "right") => {
+    const c = scrollContainerRef.current;
+    if (!c) return;
+    c.scrollBy({
+      left: dir === "left" ? -c.clientWidth * 0.8 : c.clientWidth * 0.8,
+      behavior: "smooth",
+    });
   };
 
-  const scrollToIndex = (index: number) => {
-    const container = scrollContainerRef.current;
-    if (container) {
-      const cardWidth = container.children[0]?.clientWidth || 0;
-      const gap = 16;
-      container.scrollTo({
-        left: index * (cardWidth + gap),
-        behavior: "smooth",
-      });
-    }
+  const scrollToIndex = (i: number) => {
+    const c = scrollContainerRef.current;
+    if (!c) return;
+    const cardWidth = (c.children[0] as HTMLElement)?.clientWidth || 0;
+    c.scrollTo({ left: i * (cardWidth + 16), behavior: "smooth" });
   };
 
-  const allPrograms = PROGRAMS.map((p) => ({
-    ...p,
-    status: "Past" as const,
-  }));
+  const allPrograms = [
+    ...UPCOMING_EVENTS.map((p) => ({ ...p, status: "Upcoming" as const })),
+    ...PROGRAMS.map((p) => ({ ...p, status: "Past" as const })),
+  ];
 
   return (
     <section
       id="programs"
       className="py-12 md:py-24 px-4 sm:px-6 relative overflow-hidden bg-[#0d0d0d]"
     >
-      {/* Background Glow */}
       <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[800px] h-[400px] bg-[#c9a84c]/5 rounded-full blur-3xl pointer-events-none" />
-      <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-[600px] h-[300px] bg-[#c9a84c]/3 rounded-full blur-3xl pointer-events-none" />
-
       <div className="max-w-6xl mx-auto relative z-10">
-        {/* Header */}
         <div className="text-center mb-8 md:mb-12">
           <div className="inline-flex items-center gap-2 text-[#c9a84c] text-xs font-bold uppercase tracking-widest bg-[#c9a84c]/10 px-4 py-2 rounded-full mb-4 border border-[#c9a84c]/20">
             <Sparkles className="w-4 h-4" />
-            <span>Past Programs</span>
+            <span>Events & Programs</span>
           </div>
           <h2 className="text-3xl md:text-5xl font-bold mt-2 text-white">
-            Completed <span className="text-[#c9a84c]">Programs</span>
+            What&apos;s <span className="text-[#c9a84c]">Next</span> and{" "}
+            <span className="text-[#c9a84c]">Past</span>
           </h2>
           <p className="text-[#7a7270] mt-3 max-w-2xl mx-auto text-sm md:text-base">
-            Explore our past initiatives that have helped students learn, earn,
-            and lead.
+            Register for upcoming events, or explore our completed initiatives.
           </p>
-
           <div className="flex items-center justify-center gap-4 mt-4 flex-wrap">
             <div className="flex items-center gap-2 text-[#7a7270] text-xs">
-              <div className="w-2 h-2 rounded-full bg-[#333333]" />
-              <span>{allPrograms.length} Programs Completed</span>
+              <div className="w-2 h-2 rounded-full bg-green-500 animate-pulse" />
+              <span>{UPCOMING_EVENTS.length} Upcoming</span>
             </div>
             <div className="w-px h-4 bg-[#333333]" />
             <div className="flex items-center gap-2 text-[#7a7270] text-xs">
-              <Users className="w-3.5 h-3.5 text-[#c9a84c]" />
-              <span>Virtual & Physical</span>
+              <div className="w-2 h-2 rounded-full bg-[#333333]" />
+              <span>{PROGRAMS.length} Completed</span>
             </div>
           </div>
         </div>
-
-        {/* Programs Carousel */}
         <div className="relative">
-          {/* Desktop Arrows */}
           {!isMobile && showLeftArrow && (
             <button
               onClick={() => scroll("left")}
-              className="absolute -left-3 top-1/2 -translate-y-1/2 z-10 bg-[#1a1a1a] hover:bg-[#c9a84c] text-[#b8b0a8] hover:text-[#0d0d0d] p-2.5 rounded-full transition-all border border-[#333333] hover:border-[#c9a84c] shadow-lg hover:scale-110 active:scale-95 touch-manipulation"
+              className="absolute -left-3 top-1/2 -translate-y-1/2 z-10 bg-[#1a1a1a] hover:bg-[#c9a84c] text-[#b8b0a8] hover:text-[#0d0d0d] p-2.5 rounded-full transition-all border border-[#333333] hover:border-[#c9a84c] shadow-lg touch-manipulation"
               aria-label="Scroll left"
             >
               <ChevronLeft className="w-4 h-4" />
@@ -134,14 +106,13 @@ export default function Programs() {
           {!isMobile && showRightArrow && (
             <button
               onClick={() => scroll("right")}
-              className="absolute -right-3 top-1/2 -translate-y-1/2 z-10 bg-[#1a1a1a] hover:bg-[#c9a84c] text-[#b8b0a8] hover:text-[#0d0d0d] p-2.5 rounded-full transition-all border border-[#333333] hover:border-[#c9a84c] shadow-lg hover:scale-110 active:scale-95 touch-manipulation"
+              className="absolute -right-3 top-1/2 -translate-y-1/2 z-10 bg-[#1a1a1a] hover:bg-[#c9a84c] text-[#b8b0a8] hover:text-[#0d0d0d] p-2.5 rounded-full transition-all border border-[#333333] hover:border-[#c9a84c] shadow-lg touch-manipulation"
               aria-label="Scroll right"
             >
               <ChevronRight className="w-4 h-4" />
             </button>
           )}
 
-          {/* Scroll Container */}
           <div
             ref={scrollContainerRef}
             className="flex gap-4 md:gap-6 overflow-x-auto snap-x snap-mandatory py-4 scrollbar-custom"
@@ -154,9 +125,8 @@ export default function Programs() {
             {allPrograms.map((item, index) => (
               <div
                 key={item.title}
-                className={`w-[260px] sm:w-[280px] md:w-[300px] snap-center rounded-xl md:rounded-2xl border border-[#333333] bg-[#1a1a1a] overflow-hidden group flex-shrink-0 hover:border-[#c9a84c]/50 hover:shadow-2xl hover:shadow-[#c9a84c]/10 hover:-translate-y-2 transition-all duration-500`}
+                className="w-[260px] sm:w-[280px] md:w-[300px] snap-center rounded-xl md:rounded-2xl border border-[#333333] bg-[#1a1a1a] overflow-hidden group flex-shrink-0 hover:border-[#c9a84c]/50 hover:shadow-2xl hover:shadow-[#c9a84c]/10 hover:-translate-y-2 transition-all duration-500"
               >
-                {/* Image */}
                 <div className="relative h-40 w-full overflow-hidden">
                   {item.image ? (
                     <>
@@ -174,33 +144,33 @@ export default function Programs() {
                       📚
                     </div>
                   )}
-
-                  {/* Status */}
-                  <div className="absolute bottom-3 left-3 right-3 flex items-center justify-between">
+                  <div className="absolute bottom-3 left-3">
                     <span className="text-xs font-bold text-[#c9a84c] bg-black/40 backdrop-blur-sm px-2.5 py-0.5 rounded-full">
                       #{index + 1}
                     </span>
-                    <StatusBadge status="Past" />
                   </div>
-
-                  {/* Completed Badge */}
                   <div className="absolute top-3 right-3">
-                    <span className="bg-[#2a2a2a] text-[#7a7270] text-[10px] font-bold px-2.5 py-1 rounded-full flex items-center gap-1 border border-[#333333]">
-                      <CheckCircle className="w-2.5 h-2.5" />
-                      Completed
-                    </span>
+                    {item.status === "Upcoming" ? (
+                      <span className="bg-green-500 text-[#0d0d0d] text-[10px] font-bold px-2.5 py-1 rounded-full flex items-center gap-1">
+                        <span className="w-1.5 h-1.5 rounded-full bg-[#0d0d0d] animate-pulse" />
+                        Upcoming
+                      </span>
+                    ) : (
+                      <span className="bg-[#2a2a2a] text-[#7a7270] text-[10px] font-bold px-2.5 py-1 rounded-full flex items-center gap-1 border border-[#333333]">
+                        <CheckCircle className="w-2.5 h-2.5" />
+                        Completed
+                      </span>
+                    )}
                   </div>
                 </div>
-
-                {/* Content */}
                 <div className="p-4">
                   <h4 className="text-white font-bold text-base mb-1.5 group-hover:text-[#c9a84c] transition-colors line-clamp-1">
                     {item.title}
                   </h4>
                   <p className="text-[#7a7270] text-xs leading-relaxed mb-3 line-clamp-2">
-                    {item.desc || "An initiative that helped students grow."}
+                    {item.description ||
+                      "An initiative that helped students grow."}
                   </p>
-
                   <div className="space-y-1.5 text-xs border-t border-[#333333] pt-3">
                     <div className="flex items-center gap-2 text-[#b8b0a8]">
                       <CalendarIcon className="w-3.5 h-3.5 text-[#c9a84c] shrink-0" />
@@ -215,28 +185,32 @@ export default function Programs() {
                       <span className="truncate">{item.venue}</span>
                     </div>
                   </div>
-
-                  <div className="w-full mt-3 py-2.5 bg-[#2a2a2a] text-[#7a7270] rounded-lg font-semibold text-xs flex items-center justify-center gap-2 cursor-not-allowed">
-                    <CheckCircle className="w-3.5 h-3.5" />
-                    Program Completed
-                  </div>
+                  {item.status === "Upcoming" ? (
+                    <a
+                      href="#register"
+                      className="w-full mt-3 py-2.5 bg-[#c9a84c] hover:bg-[#a8873a] text-[#0d0d0d] rounded-lg font-semibold text-xs flex items-center justify-center gap-2 transition-all touch-manipulation active:scale-95"
+                    >
+                      <Sparkles className="w-3.5 h-3.5" />
+                      Register Now
+                    </a>
+                  ) : (
+                    <div className="w-full mt-3 py-2.5 bg-[#2a2a2a] text-[#7a7270] rounded-lg font-semibold text-xs flex items-center justify-center gap-2 cursor-not-allowed">
+                      <CheckCircle className="w-3.5 h-3.5" />
+                      Program Completed
+                    </div>
+                  )}
                 </div>
               </div>
             ))}
           </div>
 
-          {/* Mobile Dots */}
           {isMobile && allPrograms.length > 1 && (
             <div className="flex justify-center gap-1.5 mt-3">
               {allPrograms.map((_, index) => (
                 <button
                   key={index}
                   onClick={() => scrollToIndex(index)}
-                  className={`h-1.5 rounded-full transition-all duration-300 touch-manipulation ${
-                    activeIndex === index
-                      ? "w-5 bg-[#c9a84c]"
-                      : "w-1.5 bg-[#333333] hover:bg-[#555555]"
-                  }`}
+                  className={`h-1.5 rounded-full transition-all duration-300 touch-manipulation ${activeIndex === index ? "w-5 bg-[#c9a84c]" : "w-1.5 bg-[#333333]"}`}
                   aria-label={`Go to program ${index + 1}`}
                 />
               ))}
@@ -251,10 +225,6 @@ export default function Programs() {
           scrollbar-color: #c9a84c #1a1a1a;
           -webkit-overflow-scrolling: touch;
           scroll-behavior: smooth;
-          cursor: grab;
-        }
-        .scrollbar-custom:active {
-          cursor: grabbing;
         }
         .scrollbar-custom::-webkit-scrollbar {
           height: 4px;
@@ -266,11 +236,6 @@ export default function Programs() {
         .scrollbar-custom::-webkit-scrollbar-thumb {
           background: #c9a84c;
           border-radius: 10px;
-        }
-        @media (max-width: 768px) {
-          .scrollbar-custom::-webkit-scrollbar {
-            height: 3px;
-          }
         }
       `}</style>
     </section>

@@ -1,9 +1,8 @@
 "use client";
-
 import { motion } from "framer-motion";
 import { ReactNode } from "react";
 
-interface AnimatedSectionHeaderProps {
+interface Props {
   title: string;
   subtitle?: string;
   icon?: ReactNode;
@@ -15,7 +14,7 @@ export function AnimatedSectionHeader({
   subtitle,
   icon,
   highlight,
-}: AnimatedSectionHeaderProps) {
+}: Props) {
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}

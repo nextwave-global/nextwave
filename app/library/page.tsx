@@ -1,5 +1,4 @@
 "use client";
-
 import { useState } from "react";
 import Link from "next/link";
 import { LIBRARY_ITEMS } from "@/data/library";
@@ -14,7 +13,6 @@ import {
   ChevronRight,
 } from "lucide-react";
 
-// Get unique categories from data for dynamic rendering
 const getUniqueCategories = () => {
   const unique = new Set(LIBRARY_ITEMS.map((item) => item.category));
   return ["All", ...Array.from(unique).sort()];
@@ -33,61 +31,41 @@ export default function LibraryPage() {
     return matchesSearch && matchesCategory;
   });
 
-  // Helper to get file ID from Google Drive URL
-  const getFileId = (url: string) => {
-    const match = url.match(/\/d\/([^\/]+)/);
-    return match ? match[1] : null;
-  };
-
-  // Get direct download URL
+  const getFileId = (url: string) => url.match(/\/d\/([^\/]+)/)?.[1] ?? null;
   const getDownloadUrl = (url: string) => {
-    const fileId = getFileId(url);
-    return fileId
-      ? `https://drive.google.com/uc?export=download&id=${fileId}`
-      : url;
+    const id = getFileId(url);
+    return id ? `https://drive.google.com/uc?export=download&id=${id}` : url;
   };
-
-  // Get preview URL
   const getPreviewUrl = (url: string) => {
-    const fileId = getFileId(url);
-    return fileId ? `https://drive.google.com/file/d/${fileId}/preview` : url;
+    const id = getFileId(url);
+    return id ? `https://drive.google.com/file/d/${id}/preview` : url;
   };
-
-  // Format date properly
-  const formatDate = (dateString: string) => {
-    const date = new Date(dateString);
-    return date.toLocaleDateString("en-US", {
+  const formatDate = (d: string) =>
+    new Date(d).toLocaleDateString("en-US", {
       year: "numeric",
       month: "short",
       day: "numeric",
     });
-  };
-
-  const dynamicCategories = getUniqueCategories();
 
   return (
     <div className="min-h-screen bg-[#0d0d0d]">
-      {/* Header */}
       <div className="bg-[#1a1a1a] border-b border-[#333333] sticky top-0 z-10">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 py-4">
-          <div className="flex items-center justify-between">
-            <Link
-              href="/"
-              className="flex items-center gap-2 text-[#b8b0a8] hover:text-[#c9a84c] transition-colors touch-manipulation"
-            >
-              <ArrowLeft className="w-4 h-4" />
-              <span className="text-sm font-medium">Back to Home</span>
-            </Link>
-            <div className="flex items-center gap-2">
-              <BookOpen className="w-5 h-5 text-[#c9a84c]" />
-              <span className="text-white font-bold">Library</span>
-            </div>
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 py-4 flex items-center justify-between">
+          <Link
+            href="/"
+            className="flex items-center gap-2 text-[#b8b0a8] hover:text-[#c9a84c] transition-colors touch-manipulation"
+          >
+            <ArrowLeft className="w-4 h-4" />
+            <span className="text-sm font-medium">Back to Home</span>
+          </Link>
+          <div className="flex items-center gap-2">
+            <BookOpen className="w-5 h-5 text-[#c9a84c]" />
+            <span className="text-white font-bold">Library</span>
           </div>
         </div>
       </div>
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 py-8 md:py-12">
-        {/* Hero Section */}
         <div className="text-center mb-8 md:mb-12">
           <div className="inline-flex items-center gap-2 text-[#c9a84c] text-xs font-bold uppercase tracking-widest bg-[#c9a84c]/10 px-4 py-2 rounded-full mb-4 border border-[#c9a84c]/20">
             <Sparkles className="w-4 h-4" />
@@ -108,7 +86,6 @@ export default function LibraryPage() {
           </div>
         </div>
 
-        {/* Search and Filter */}
         <div className="flex flex-col md:flex-row gap-4 mb-8">
           <div className="flex-1 relative">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-[#7a7270] w-4 h-4" />
@@ -120,30 +97,24 @@ export default function LibraryPage() {
               className="w-full pl-10 pr-4 py-3 bg-[#1a1a1a] border border-[#333333] rounded-xl focus:border-[#c9a84c] focus:ring-2 focus:ring-[#c9a84c]/20 outline-none text-white placeholder:text-[#7a7270] text-sm"
             />
           </div>
-          <div className="flex gap-2 overflow-x-auto pb-2 md:pb-0 scrollbar-custom flex-wrap">
-            {dynamicCategories.map((category) => (
+          <div className="flex gap-2 overflow-x-auto pb-2 md:pb-0 flex-wrap">
+            {getUniqueCategories().map((cat) => (
               <button
-                key={category}
-                onClick={() => setSelectedCategory(category)}
-                className={`px-4 py-2 rounded-full text-xs font-semibold whitespace-nowrap transition-all touch-manipulation ${
-                  selectedCategory === category
-                    ? "bg-[#c9a84c] text-[#0d0d0d]"
-                    : "bg-[#1a1a1a] text-[#b8b0a8] hover:bg-[#2a2a2a] border border-[#333333]"
-                }`}
+                key={cat}
+                onClick={() => setSelectedCategory(cat)}
+                className={`px-4 py-2 rounded-full text-xs font-semibold whitespace-nowrap transition-all touch-manipulation ${selectedCategory === cat ? "bg-[#c9a84c] text-[#0d0d0d]" : "bg-[#1a1a1a] text-[#b8b0a8] hover:bg-[#2a2a2a] border border-[#333333]"}`}
               >
-                {category}
+                {cat}
               </button>
             ))}
           </div>
         </div>
 
-        {/* Results Count */}
-        <div className="text-sm text-[#7a7270] mb-4 min-h-[20px]">
+        <div className="text-sm text-[#7a7270] mb-4">
           {filteredItems.length}{" "}
           {filteredItems.length === 1 ? "resource" : "resources"} found
         </div>
 
-        {/* Library Grid */}
         {filteredItems.length === 0 ? (
           <div className="text-center py-12">
             <div className="bg-[#1a1a1a] rounded-2xl p-8 border border-[#333333] max-w-md mx-auto">
@@ -152,8 +123,7 @@ export default function LibraryPage() {
                 No Resources Found
               </h3>
               <p className="text-sm text-[#7a7270]">
-                Try adjusting your search or filter to find what you&apos;re
-                looking for.
+                Try adjusting your search or filter.
               </p>
             </div>
           </div>
@@ -172,14 +142,12 @@ export default function LibraryPage() {
                     {item.category}
                   </span>
                 </div>
-
                 <h3 className="font-bold text-white mb-1.5 group-hover:text-[#c9a84c] transition-colors line-clamp-1">
                   {item.title}
                 </h3>
                 <p className="text-[#7a7270] text-sm mb-4 line-clamp-2 flex-1">
                   {item.description}
                 </p>
-
                 <div className="flex items-center justify-between mt-2 pt-3 border-t border-[#333333]">
                   <span className="text-[10px] text-[#7a7270]">
                     Added {formatDate(item.date)}
@@ -211,15 +179,13 @@ export default function LibraryPage() {
           </div>
         )}
 
-        {/* Call to Action */}
         <div className="mt-12 text-center">
           <div className="bg-[#1a1a1a] rounded-2xl p-6 md:p-8 border border-[#c9a84c]/20 max-w-2xl mx-auto">
             <h3 className="text-lg font-bold text-white mb-2">
               Can&apos;t find what you&apos;re looking for?
             </h3>
             <p className="text-[#7a7270] text-sm mb-4">
-              Reach out to us and we&apos;ll help you find the resources you
-              need.
+              Reach out and we&apos;ll help you find the resources you need.
             </p>
             <a
               href="mailto:nextwaveglobal509@gmail.com"
@@ -231,23 +197,6 @@ export default function LibraryPage() {
           </div>
         </div>
       </div>
-
-      <style jsx>{`
-        .scrollbar-custom {
-          scrollbar-width: thin;
-          scrollbar-color: #c9a84c #1a1a1a;
-        }
-        .scrollbar-custom::-webkit-scrollbar {
-          height: 3px;
-        }
-        .scrollbar-custom::-webkit-scrollbar-track {
-          background: #1a1a1a;
-        }
-        .scrollbar-custom::-webkit-scrollbar-thumb {
-          background: #c9a84c;
-          border-radius: 10px;
-        }
-      `}</style>
     </div>
   );
 }

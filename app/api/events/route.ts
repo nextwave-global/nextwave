@@ -1,13 +1,14 @@
 import { NextResponse } from "next/server";
-import { prisma } from "@/lib/prisma";
+import { supabaseAdmin } from "@/lib/supabase-server";
 
 export async function GET() {
   try {
-    const events = await prisma.event.findMany({
-      orderBy: { createdAt: "desc" },
-    });
-
-    return NextResponse.json({ events });
+    const { data, error } = await supabaseAdmin
+      .from("events")
+      .select("*")
+      .order("created_at", { ascending: false });
+    if (error) throw error;
+    return NextResponse.json({ events: data ?? [] });
   } catch (error) {
     console.error("Error fetching events:", error);
     return NextResponse.json(

@@ -11,12 +11,12 @@ export interface Program {
 export const PROGRAMS: Program[] = [
   {
     title: "Leadership in Action",
-    desc: "Building Influence, Creating Impact & Driving Growth as a Student. Learn proven strategies from top leaders.",
+    desc: "Building Influence, Creating Impact & Driving Growth as a Student.",
     date: "July 18, 2026",
     time: "7:00 PM - 9:00 PM WAT",
     venue: "Virtual (Google Meet)",
     status: "Coming Soon",
-    image: "/events/leadership.jpg", // ✅ Added image path
+    image: "/events/leadership.jpg",
   },
   {
     title: "Scholar Reboot",

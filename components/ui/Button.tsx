@@ -20,7 +20,6 @@ export const Button = ({
     md: "px-6 py-3 text-sm min-h-[48px]",
     lg: "px-8 py-4 text-base min-h-[56px]",
   };
-
   const variantClasses = {
     primary:
       "bg-[#c9a84c] hover:bg-[#a8873a] text-[#0d0d0d] font-bold shadow-lg shadow-[#c9a84c]/20 hover:shadow-[#c9a84c]/30",
@@ -30,7 +29,6 @@ export const Button = ({
       "border-2 border-[#c9a84c] text-[#c9a84c] hover:bg-[#c9a84c] hover:text-[#0d0d0d]",
     ghost: "text-[#b8b0a8] hover:text-[#c9a84c] hover:bg-[#1a1a1a]",
   };
-
   return (
     <button
       className={`inline-flex items-center justify-center gap-2 rounded-full font-semibold transition-all active:scale-95 touch-manipulation disabled:opacity-50 disabled:cursor-not-allowed ${sizeClasses[size]} ${variantClasses[variant]} ${fullWidth ? "w-full" : ""} ${className}`}
