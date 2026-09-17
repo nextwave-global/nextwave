@@ -57,7 +57,7 @@ export class ResendEmailService {
           this.resend.emails.send({
             from: this.fromEmail,
             to: admin,
-            subject: `New Registration: ${data.fullName} — ${data.eventTitle}`,
+            subject: `New Registration: ${data.fullName} - ${data.eventTitle}`,
             html: this.adminHTML(data),
           }),
         ),

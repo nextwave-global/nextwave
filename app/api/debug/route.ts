@@ -29,7 +29,7 @@ export async function GET() {
       recentRegistrations: (recent ?? []).map((r: any) => ({
         name: r.full_name,
         email: r.email,
-        event: r.event?.title ?? "—",
+        event: r.event?.title ?? "-",
         status: r.status,
         createdAt: r.created_at,
       })),

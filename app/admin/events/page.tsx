@@ -187,7 +187,7 @@ export default function AdminEventsPage() {
                         <td className="px-6 py-4 text-sm text-[#b8b0a8] whitespace-nowrap">
                           {e.starts_at
                             ? new Date(e.starts_at).toLocaleString()
-                            : "—"}
+                            : "-"}
                         </td>
                         <td className="px-6 py-4">
                           <span
@@ -200,7 +200,7 @@ export default function AdminEventsPage() {
                           {e.is_featured ? (
                             <Star className="w-4 h-4 text-[#c9a84c] fill-[#c9a84c]" />
                           ) : (
-                            <span className="text-[#7a7270]">—</span>
+                            <span className="text-[#7a7270]">-</span>
                           )}
                         </td>
                         <td className="px-6 py-4 text-sm text-[#b8b0a8]">
@@ -210,7 +210,7 @@ export default function AdminEventsPage() {
                               {speakerCount}
                             </span>
                           ) : (
-                            "—"
+                            "-"
                           )}
                         </td>
                         <td className="px-6 py-4 text-sm text-[#b8b0a8]">
@@ -220,7 +220,7 @@ export default function AdminEventsPage() {
                               {flyerCount}
                             </span>
                           ) : (
-                            "—"
+                            "-"
                           )}
                         </td>
                         <td className="px-6 py-4 text-sm text-[#b8b0a8] whitespace-nowrap">

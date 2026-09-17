@@ -289,7 +289,7 @@ export default function AdminDashboard() {
                           {reg.email}
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap text-sm text-[#b8b0a8]">
-                          {reg.phone || "—"}
+                          {reg.phone || "-"}
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-white">
                           {reg.event.title}

@@ -183,7 +183,7 @@ export default function AcademyClient() {
               Our <span className="text-[#c9a84c]">Mission</span> Continues
             </h2>
             <p className="text-[#7a7270] max-w-2xl mx-auto text-sm md:text-base">
-              The same three pillars — now in a structured academy format.
+              The same three pillars now in a structured academy format.
             </p>
           </div>
           <div className="grid md:grid-cols-3 gap-6 md:gap-8">
