@@ -7,7 +7,7 @@ export const UPCOMING_EVENTS: Event[] = [
     description:
       "Exams are over — but time is your most valuable asset. Learn how to use your break to build skills, not just level up in games.",
     category: "Earn",
-    date: "September 18, 2025",
+    date: "September 18, 2026",
     time: "7:00 PM WAT",
     venue: "Virtual (WhatsApp Community)",
     price: "Free",
