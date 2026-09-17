@@ -9,8 +9,10 @@ import {
   Loader2,
   Pencil,
   X,
+  User,
+  Image as ImageIcon,
 } from "lucide-react";
-import type { DbEvent } from "@/types/db";
+import type { DbEvent, Speaker } from "@/types/db";
 import { computedStatus, statusLabel, statusColor, slugify } from "@/lib/events";
 
 function toLocalInput(iso: string | null): string {
@@ -19,6 +21,14 @@ function toLocalInput(iso: string | null): string {
   const off = d.getTimezoneOffset() * 60000;
   return new Date(d.getTime() - off).toISOString().slice(0, 16);
 }
+
+const emptySpeaker = (): Speaker => ({
+  name: "",
+  title: "",
+  bio: "",
+  photo: "",
+  socials: {},
+});
 
 export default function AdminEventsPage() {
   const [events, setEvents] = useState<DbEvent[]>([]);
@@ -115,6 +125,8 @@ export default function AdminEventsPage() {
                     "Starts",
                     "Status",
                     "Featured",
+                    "Speakers",
+                    "Flyers",
                     "Registered",
                     "Actions",
                   ].map((h) => (
@@ -131,7 +143,7 @@ export default function AdminEventsPage() {
                 {loading ? (
                   <tr>
                     <td
-                      colSpan={7}
+                      colSpan={9}
                       className="px-6 py-8 text-center text-[#7a7270]"
                     >
                       <Loader2 className="w-5 h-5 animate-spin mx-auto" />
@@ -140,7 +152,7 @@ export default function AdminEventsPage() {
                 ) : events.length === 0 ? (
                   <tr>
                     <td
-                      colSpan={7}
+                      colSpan={9}
                       className="px-6 py-8 text-center text-[#7a7270]"
                     >
                       No events yet
@@ -149,6 +161,9 @@ export default function AdminEventsPage() {
                 ) : (
                   events.map((e) => {
                     const s = computedStatus(e);
+                    const speakerCount = e.speakers_data?.length ?? 0;
+                    const flyerCount =
+                      e.flyers?.length ?? (e.flyer_url ? 1 : 0);
                     return (
                       <tr key={e.id} className="hover:bg-[#2a2a2a]">
                         <td className="px-6 py-4">
@@ -160,11 +175,16 @@ export default function AdminEventsPage() {
                             {e.title}
                             <ExternalLink className="w-3 h-3" />
                           </Link>
+                          {e.tagline && (
+                            <p className="text-[10px] text-[#7a7270] mt-0.5">
+                              {e.tagline}
+                            </p>
+                          )}
                         </td>
                         <td className="px-6 py-4 text-sm text-[#b8b0a8]">
                           {e.category}
                         </td>
-                        <td className="px-6 py-4 text-sm text-[#b8b0a8]">
+                        <td className="px-6 py-4 text-sm text-[#b8b0a8] whitespace-nowrap">
                           {e.starts_at
                             ? new Date(e.starts_at).toLocaleString()
                             : "—"}
@@ -184,6 +204,26 @@ export default function AdminEventsPage() {
                           )}
                         </td>
                         <td className="px-6 py-4 text-sm text-[#b8b0a8]">
+                          {speakerCount > 0 ? (
+                            <span className="inline-flex items-center gap-1">
+                              <User className="w-3 h-3" />
+                              {speakerCount}
+                            </span>
+                          ) : (
+                            "—"
+                          )}
+                        </td>
+                        <td className="px-6 py-4 text-sm text-[#b8b0a8]">
+                          {flyerCount > 0 ? (
+                            <span className="inline-flex items-center gap-1">
+                              <ImageIcon className="w-3 h-3" />
+                              {flyerCount}
+                            </span>
+                          ) : (
+                            "—"
+                          )}
+                        </td>
+                        <td className="px-6 py-4 text-sm text-[#b8b0a8] whitespace-nowrap">
                           {e.registered}/{e.capacity}
                         </td>
                         <td className="px-6 py-4">
@@ -226,6 +266,7 @@ interface FormProps {
 function EventForm({ initial, onSaved, onCancel }: FormProps) {
   const [form, setForm] = useState({
     title: initial?.title ?? "",
+    tagline: initial?.tagline ?? "",
     description: initial?.description ?? "",
     category: initial?.category ?? "Learn",
     starts_at: toLocalInput(initial?.starts_at ?? null),
@@ -239,14 +280,58 @@ function EventForm({ initial, onSaved, onCancel }: FormProps) {
     tags: (initial?.tags ?? []).join(", "),
     override_status: initial?.override_status ?? "",
   });
+
+  const [flyers, setFlyers] = useState<string[]>(
+    initial?.flyers && initial.flyers.length > 0
+      ? initial.flyers
+      : initial?.flyer_url
+        ? [initial.flyer_url]
+        : [""],
+  );
+
+  const [speakers, setSpeakers] = useState<Speaker[]>(
+    initial?.speakers_data && initial.speakers_data.length > 0
+      ? initial.speakers_data
+      : [],
+  );
+
   const [saving, setSaving] = useState(false);
   const [err, setErr] = useState("");
+
+  const addFlyer = () => setFlyers((f) => [...f, ""]);
+  const removeFlyer = (i: number) =>
+    setFlyers((f) => f.filter((_, idx) => idx !== i));
+  const updateFlyer = (i: number, v: string) =>
+    setFlyers((f) => f.map((x, idx) => (idx === i ? v : x)));
+
+  const addSpeaker = () => setSpeakers((s) => [...s, emptySpeaker()]);
+  const removeSpeaker = (i: number) =>
+    setSpeakers((s) => s.filter((_, idx) => idx !== i));
+  const updateSpeaker = (i: number, patch: Partial<Speaker>) =>
+    setSpeakers((s) =>
+      s.map((sp, idx) => (idx === i ? { ...sp, ...patch } : sp)),
+    );
+  const updateSpeakerSocial = (
+    i: number,
+    key: keyof NonNullable<Speaker["socials"]>,
+    v: string,
+  ) =>
+    setSpeakers((s) =>
+      s.map((sp, idx) =>
+        idx === i
+          ? { ...sp, socials: { ...(sp.socials || {}), [key]: v } }
+          : sp,
+      ),
+    );
 
   const submit = async (e: React.FormEvent) => {
     e.preventDefault();
     setSaving(true);
     setErr("");
     try {
+      const cleanFlyers = flyers.map((f) => f.trim()).filter(Boolean);
+      const primaryFlyer = form.flyer_url.trim() || cleanFlyers[0] || "";
+
       const r = await fetch("/api/admin/events", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -254,6 +339,9 @@ function EventForm({ initial, onSaved, onCancel }: FormProps) {
           id: initial?.id,
           slug: initial?.slug,
           ...form,
+          flyer_url: primaryFlyer,
+          flyers: cleanFlyers,
+          speakers_data: speakers.filter((s) => s.name.trim()),
           starts_at: new Date(form.starts_at).toISOString(),
           ends_at: form.ends_at ? new Date(form.ends_at).toISOString() : null,
           tags: form.tags
@@ -279,13 +367,12 @@ function EventForm({ initial, onSaved, onCancel }: FormProps) {
     "w-full px-4 py-2.5 bg-[#0d0d0d] border border-[#333333] rounded-lg focus:ring-2 focus:ring-[#c9a84c] outline-none text-white text-sm";
   const label =
     "block text-xs font-semibold text-[#b8b0a8] mb-1.5 uppercase tracking-wider";
-
   const previewSlug = form.title ? slugify(form.title) : "your-event-slug";
 
   return (
     <form
       onSubmit={submit}
-      className="bg-[#1a1a1a] rounded-xl border border-[#333333] p-6 space-y-4"
+      className="bg-[#1a1a1a] rounded-xl border border-[#333333] p-6 space-y-5"
     >
       <div className="grid md:grid-cols-2 gap-4">
         <div className="md:col-span-2">
@@ -306,9 +393,19 @@ function EventForm({ initial, onSaved, onCancel }: FormProps) {
         </div>
 
         <div className="md:col-span-2">
+          <label className={label}>Tagline (optional, shown under title)</label>
+          <input
+            className={field}
+            placeholder="Ex: Make your break count"
+            value={form.tagline}
+            onChange={(e) => setForm({ ...form, tagline: e.target.value })}
+          />
+        </div>
+
+        <div className="md:col-span-2">
           <label className={label}>Description</label>
           <textarea
-            rows={3}
+            rows={4}
             className={field}
             value={form.description}
             onChange={(e) =>
@@ -381,14 +478,214 @@ function EventForm({ initial, onSaved, onCancel }: FormProps) {
           />
         </div>
 
-        <div>
-          <label className={label}>Flyer URL</label>
+        <div className="md:col-span-2">
+          <label className={label}>Primary Flyer URL</label>
           <input
             className={field}
             placeholder="/events/flyer.jpg"
             value={form.flyer_url}
             onChange={(e) => setForm({ ...form, flyer_url: e.target.value })}
           />
+          <p className="text-[10px] text-[#7a7270] mt-1.5">
+            Used as main image on cards and social previews.
+          </p>
+        </div>
+
+        {/* Flyers gallery */}
+        <div className="md:col-span-2">
+          <div className="flex items-center justify-between mb-2">
+            <label className={label} style={{ marginBottom: 0 }}>
+              Flyer Gallery ({flyers.length})
+            </label>
+            <button
+              type="button"
+              onClick={addFlyer}
+              className="text-xs text-[#c9a84c] hover:text-[#a8873a] font-semibold flex items-center gap-1"
+            >
+              <Plus size={14} /> Add flyer
+            </button>
+          </div>
+          <div className="space-y-2">
+            {flyers.map((f, i) => (
+              <div key={i} className="flex gap-2 items-center">
+                <span className="text-[10px] text-[#7a7270] w-6 shrink-0">
+                  #{i + 1}
+                </span>
+                <input
+                  className={field}
+                  placeholder="/events/speaker-1.jpg"
+                  value={f}
+                  onChange={(e) => updateFlyer(i, e.target.value)}
+                />
+                <button
+                  type="button"
+                  onClick={() => removeFlyer(i)}
+                  disabled={flyers.length === 1}
+                  className="p-2 text-[#7a7270] hover:text-red-400 hover:bg-red-500/20 rounded transition disabled:opacity-30 disabled:cursor-not-allowed shrink-0"
+                  title="Remove"
+                >
+                  <Trash2 size={14} />
+                </button>
+              </div>
+            ))}
+          </div>
+          <p className="text-[10px] text-[#7a7270] mt-2">
+            Tip: upload images to <code>public/events/</code> and reference them
+            as <code>/events/your-file.jpg</code>.
+          </p>
+        </div>
+
+        {/* Speakers */}
+        <div className="md:col-span-2">
+          <div className="flex items-center justify-between mb-2">
+            <label className={label} style={{ marginBottom: 0 }}>
+              Speakers ({speakers.length})
+            </label>
+            <button
+              type="button"
+              onClick={addSpeaker}
+              className="text-xs text-[#c9a84c] hover:text-[#a8873a] font-semibold flex items-center gap-1"
+            >
+              <Plus size={14} /> Add speaker
+            </button>
+          </div>
+
+          {speakers.length === 0 ? (
+            <p className="text-xs text-[#7a7270] italic py-2">
+              No speakers added. Optional.
+            </p>
+          ) : (
+            <div className="space-y-3">
+              {speakers.map((sp, i) => (
+                <div
+                  key={i}
+                  className="bg-[#0d0d0d] border border-[#333333] rounded-lg p-4 space-y-3"
+                >
+                  <div className="flex items-center justify-between">
+                    <span className="text-xs font-semibold text-[#c9a84c]">
+                      Speaker #{i + 1}
+                    </span>
+                    <button
+                      type="button"
+                      onClick={() => removeSpeaker(i)}
+                      className="p-1 text-[#7a7270] hover:text-red-400 hover:bg-red-500/20 rounded transition"
+                      title="Remove"
+                    >
+                      <Trash2 size={14} />
+                    </button>
+                  </div>
+
+                  <div className="grid md:grid-cols-2 gap-3">
+                    <div>
+                      <label className="text-[10px] text-[#7a7270] font-semibold block mb-1">
+                        Name *
+                      </label>
+                      <input
+                        className={field}
+                        value={sp.name}
+                        onChange={(e) =>
+                          updateSpeaker(i, { name: e.target.value })
+                        }
+                        placeholder="Full name"
+                      />
+                    </div>
+                    <div>
+                      <label className="text-[10px] text-[#7a7270] font-semibold block mb-1">
+                        Title / Role
+                      </label>
+                      <input
+                        className={field}
+                        value={sp.title ?? ""}
+                        onChange={(e) =>
+                          updateSpeaker(i, { title: e.target.value })
+                        }
+                        placeholder="Ex: CEO at Company"
+                      />
+                    </div>
+                    <div className="md:col-span-2">
+                      <label className="text-[10px] text-[#7a7270] font-semibold block mb-1">
+                        Bio
+                      </label>
+                      <textarea
+                        rows={2}
+                        className={field}
+                        value={sp.bio ?? ""}
+                        onChange={(e) =>
+                          updateSpeaker(i, { bio: e.target.value })
+                        }
+                        placeholder="Short bio (1-2 sentences)"
+                      />
+                    </div>
+                    <div className="md:col-span-2">
+                      <label className="text-[10px] text-[#7a7270] font-semibold block mb-1">
+                        Photo URL
+                      </label>
+                      <input
+                        className={field}
+                        value={sp.photo ?? ""}
+                        onChange={(e) =>
+                          updateSpeaker(i, { photo: e.target.value })
+                        }
+                        placeholder="/events/speaker-name.jpg"
+                      />
+                    </div>
+                    <div>
+                      <label className="text-[10px] text-[#7a7270] font-semibold block mb-1">
+                        LinkedIn
+                      </label>
+                      <input
+                        className={field}
+                        value={sp.socials?.linkedin ?? ""}
+                        onChange={(e) =>
+                          updateSpeakerSocial(i, "linkedin", e.target.value)
+                        }
+                        placeholder="https://linkedin.com/in/..."
+                      />
+                    </div>
+                    <div>
+                      <label className="text-[10px] text-[#7a7270] font-semibold block mb-1">
+                        X (Twitter)
+                      </label>
+                      <input
+                        className={field}
+                        value={sp.socials?.x ?? ""}
+                        onChange={(e) =>
+                          updateSpeakerSocial(i, "x", e.target.value)
+                        }
+                        placeholder="https://x.com/..."
+                      />
+                    </div>
+                    <div>
+                      <label className="text-[10px] text-[#7a7270] font-semibold block mb-1">
+                        WhatsApp
+                      </label>
+                      <input
+                        className={field}
+                        value={sp.socials?.whatsapp ?? ""}
+                        onChange={(e) =>
+                          updateSpeakerSocial(i, "whatsapp", e.target.value)
+                        }
+                        placeholder="https://wa.me/..."
+                      />
+                    </div>
+                    <div>
+                      <label className="text-[10px] text-[#7a7270] font-semibold block mb-1">
+                        Website
+                      </label>
+                      <input
+                        className={field}
+                        value={sp.socials?.website ?? ""}
+                        onChange={(e) =>
+                          updateSpeakerSocial(i, "website", e.target.value)
+                        }
+                        placeholder="https://..."
+                      />
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
         </div>
 
         <div>
