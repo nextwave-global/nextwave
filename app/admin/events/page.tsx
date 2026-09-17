@@ -1,19 +1,35 @@
 "use client";
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import { Plus, Trash2, Star, ExternalLink, Loader2 } from "lucide-react";
+import {
+  Plus,
+  Trash2,
+  Star,
+  ExternalLink,
+  Loader2,
+  Pencil,
+  X,
+} from "lucide-react";
 import type { DbEvent } from "@/types/db";
-import { computedStatus, statusLabel, statusColor } from "@/lib/events";
+import { computedStatus, statusLabel, statusColor, slugify } from "@/lib/events";
+
+function toLocalInput(iso: string | null): string {
+  if (!iso) return "";
+  const d = new Date(iso);
+  const off = d.getTimezoneOffset() * 60000;
+  return new Date(d.getTime() - off).toISOString().slice(0, 16);
+}
 
 export default function AdminEventsPage() {
   const [events, setEvents] = useState<DbEvent[]>([]);
   const [loading, setLoading] = useState(true);
   const [showForm, setShowForm] = useState(false);
+  const [editing, setEditing] = useState<DbEvent | null>(null);
 
   const load = async () => {
     setLoading(true);
     try {
-      const r = await fetch("/api/events");
+      const r = await fetch("/api/events", { cache: "no-store" });
       const d = await r.json();
       setEvents(d.events ?? []);
     } finally {
@@ -32,10 +48,30 @@ export default function AdminEventsPage() {
     else alert("Failed to delete");
   };
 
+  const openNew = () => {
+    setEditing(null);
+    setShowForm(true);
+  };
+
+  const openEdit = (e: DbEvent) => {
+    setEditing(e);
+    setShowForm(true);
+  };
+
+  const closeForm = () => {
+    setShowForm(false);
+    setEditing(null);
+  };
+
+  const onSaved = () => {
+    closeForm();
+    load();
+  };
+
   return (
     <div className="min-h-screen bg-[#0d0d0d] p-6">
       <div className="max-w-7xl mx-auto">
-        <div className="flex justify-between items-center mb-8">
+        <div className="flex flex-wrap justify-between items-start gap-4 mb-8">
           <div>
             <Link
               href="/admin"
@@ -45,24 +81,27 @@ export default function AdminEventsPage() {
             </Link>
             <h1 className="text-3xl font-bold text-white mt-1">Events</h1>
             <p className="text-[#7a7270] mt-1">
-              Status auto-updates based on date & time.
+              Status auto-updates based on date &amp; time.
             </p>
           </div>
           <button
-            onClick={() => setShowForm(!showForm)}
+            onClick={showForm ? closeForm : openNew}
             className="flex items-center gap-2 px-4 py-2 bg-[#c9a84c] hover:bg-[#a8873a] text-[#0d0d0d] rounded-lg font-semibold"
           >
-            <Plus size={18} /> {showForm ? "Close" : "Add Event"}
+            {showForm ? (
+              <>
+                <X size={18} /> Close
+              </>
+            ) : (
+              <>
+                <Plus size={18} /> Add Event
+              </>
+            )}
           </button>
         </div>
 
         {showForm && (
-          <EventForm
-            onCreated={() => {
-              setShowForm(false);
-              load();
-            }}
-          />
+          <EventForm initial={editing} onSaved={onSaved} onCancel={closeForm} />
         )}
 
         <div className="bg-[#1a1a1a] rounded-xl border border-[#333333] overflow-hidden mt-6">
@@ -148,13 +187,22 @@ export default function AdminEventsPage() {
                           {e.registered}/{e.capacity}
                         </td>
                         <td className="px-6 py-4">
-                          <button
-                            onClick={() => del(e.id)}
-                            className="p-1 text-[#7a7270] hover:text-red-400 hover:bg-red-500/20 rounded transition"
-                            title="Delete"
-                          >
-                            <Trash2 size={18} />
-                          </button>
+                          <div className="flex items-center gap-1">
+                            <button
+                              onClick={() => openEdit(e)}
+                              className="p-1 text-[#7a7270] hover:text-[#c9a84c] hover:bg-[#c9a84c]/20 rounded transition"
+                              title="Edit"
+                            >
+                              <Pencil size={16} />
+                            </button>
+                            <button
+                              onClick={() => del(e.id)}
+                              className="p-1 text-[#7a7270] hover:text-red-400 hover:bg-red-500/20 rounded transition"
+                              title="Delete"
+                            >
+                              <Trash2 size={16} />
+                            </button>
+                          </div>
                         </td>
                       </tr>
                     );
@@ -169,21 +217,27 @@ export default function AdminEventsPage() {
   );
 }
 
-function EventForm({ onCreated }: { onCreated: () => void }) {
+interface FormProps {
+  initial: DbEvent | null;
+  onSaved: () => void;
+  onCancel: () => void;
+}
+
+function EventForm({ initial, onSaved, onCancel }: FormProps) {
   const [form, setForm] = useState({
-    title: "",
-    description: "",
-    category: "Learn",
-    starts_at: "",
-    ends_at: "",
-    venue: "Virtual",
-    price: "Free",
-    capacity: 500,
-    flyer_url: "",
-    whatsapp_url: "",
-    is_featured: false,
-    tags: "",
-    override_status: "",
+    title: initial?.title ?? "",
+    description: initial?.description ?? "",
+    category: initial?.category ?? "Learn",
+    starts_at: toLocalInput(initial?.starts_at ?? null),
+    ends_at: toLocalInput(initial?.ends_at ?? null),
+    venue: initial?.venue ?? "Virtual",
+    price: initial?.price ?? "Free",
+    capacity: initial?.capacity ?? 500,
+    flyer_url: initial?.flyer_url ?? "",
+    whatsapp_url: initial?.whatsapp_url ?? "",
+    is_featured: initial?.is_featured ?? false,
+    tags: (initial?.tags ?? []).join(", "),
+    override_status: initial?.override_status ?? "",
   });
   const [saving, setSaving] = useState(false);
   const [err, setErr] = useState("");
@@ -197,16 +251,23 @@ function EventForm({ onCreated }: { onCreated: () => void }) {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
+          id: initial?.id,
+          slug: initial?.slug,
           ...form,
           starts_at: new Date(form.starts_at).toISOString(),
           ends_at: form.ends_at ? new Date(form.ends_at).toISOString() : null,
-          tags: form.tags ? form.tags.split(",").map((t) => t.trim()) : [],
+          tags: form.tags
+            ? form.tags
+                .split(",")
+                .map((t) => t.trim())
+                .filter(Boolean)
+            : [],
           override_status: form.override_status || null,
         }),
       });
       const data = await r.json();
       if (!r.ok) throw new Error(data.error || "Failed");
-      onCreated();
+      onSaved();
     } catch (e) {
       setErr(e instanceof Error ? e.message : "Failed");
     } finally {
@@ -218,6 +279,8 @@ function EventForm({ onCreated }: { onCreated: () => void }) {
     "w-full px-4 py-2.5 bg-[#0d0d0d] border border-[#333333] rounded-lg focus:ring-2 focus:ring-[#c9a84c] outline-none text-white text-sm";
   const label =
     "block text-xs font-semibold text-[#b8b0a8] mb-1.5 uppercase tracking-wider";
+
+  const previewSlug = form.title ? slugify(form.title) : "your-event-slug";
 
   return (
     <form
@@ -234,15 +297,26 @@ function EventForm({ onCreated }: { onCreated: () => void }) {
             onChange={(e) => setForm({ ...form, title: e.target.value })}
           />
         </div>
+
+        <div className="md:col-span-2">
+          <label className={label}>Slug (auto-generated)</label>
+          <code className="block px-4 py-2.5 bg-[#0d0d0d] border border-[#333333] rounded-lg text-xs text-[#c9a84c]">
+            /events/{initial?.slug ?? previewSlug}
+          </code>
+        </div>
+
         <div className="md:col-span-2">
           <label className={label}>Description</label>
           <textarea
             rows={3}
             className={field}
             value={form.description}
-            onChange={(e) => setForm({ ...form, description: e.target.value })}
+            onChange={(e) =>
+              setForm({ ...form, description: e.target.value })
+            }
           />
         </div>
+
         <div>
           <label className={label}>Category</label>
           <select
@@ -255,6 +329,7 @@ function EventForm({ onCreated }: { onCreated: () => void }) {
             <option>Lead</option>
           </select>
         </div>
+
         <div>
           <label className={label}>Venue</label>
           <input
@@ -263,6 +338,7 @@ function EventForm({ onCreated }: { onCreated: () => void }) {
             onChange={(e) => setForm({ ...form, venue: e.target.value })}
           />
         </div>
+
         <div>
           <label className={label}>Starts At *</label>
           <input
@@ -273,6 +349,7 @@ function EventForm({ onCreated }: { onCreated: () => void }) {
             onChange={(e) => setForm({ ...form, starts_at: e.target.value })}
           />
         </div>
+
         <div>
           <label className={label}>Ends At</label>
           <input
@@ -282,6 +359,7 @@ function EventForm({ onCreated }: { onCreated: () => void }) {
             onChange={(e) => setForm({ ...form, ends_at: e.target.value })}
           />
         </div>
+
         <div>
           <label className={label}>Price</label>
           <input
@@ -290,6 +368,7 @@ function EventForm({ onCreated }: { onCreated: () => void }) {
             onChange={(e) => setForm({ ...form, price: e.target.value })}
           />
         </div>
+
         <div>
           <label className={label}>Capacity</label>
           <input
@@ -301,6 +380,7 @@ function EventForm({ onCreated }: { onCreated: () => void }) {
             }
           />
         </div>
+
         <div>
           <label className={label}>Flyer URL</label>
           <input
@@ -310,14 +390,18 @@ function EventForm({ onCreated }: { onCreated: () => void }) {
             onChange={(e) => setForm({ ...form, flyer_url: e.target.value })}
           />
         </div>
+
         <div>
           <label className={label}>WhatsApp URL</label>
           <input
             className={field}
             value={form.whatsapp_url}
-            onChange={(e) => setForm({ ...form, whatsapp_url: e.target.value })}
+            onChange={(e) =>
+              setForm({ ...form, whatsapp_url: e.target.value })
+            }
           />
         </div>
+
         <div>
           <label className={label}>Tags (comma-separated)</label>
           <input
@@ -326,6 +410,7 @@ function EventForm({ onCreated }: { onCreated: () => void }) {
             onChange={(e) => setForm({ ...form, tags: e.target.value })}
           />
         </div>
+
         <div>
           <label className={label}>Override Status (optional)</label>
           <select
@@ -343,6 +428,7 @@ function EventForm({ onCreated }: { onCreated: () => void }) {
             <option value="cancelled">Cancelled</option>
           </select>
         </div>
+
         <div className="md:col-span-2 flex items-center gap-2">
           <input
             type="checkbox"
@@ -357,18 +443,29 @@ function EventForm({ onCreated }: { onCreated: () => void }) {
           </label>
         </div>
       </div>
+
       {err && (
         <div className="p-3 bg-red-500/10 border border-red-500/20 rounded-lg text-red-400 text-sm">
           {err}
         </div>
       )}
-      <button
-        type="submit"
-        disabled={saving}
-        className="px-6 py-3 bg-[#c9a84c] hover:bg-[#a8873a] text-[#0d0d0d] font-bold rounded-lg disabled:opacity-50"
-      >
-        {saving ? "Saving..." : "Save Event"}
-      </button>
+
+      <div className="flex gap-3">
+        <button
+          type="submit"
+          disabled={saving}
+          className="px-6 py-3 bg-[#c9a84c] hover:bg-[#a8873a] text-[#0d0d0d] font-bold rounded-lg disabled:opacity-50"
+        >
+          {saving ? "Saving..." : initial ? "Update Event" : "Create Event"}
+        </button>
+        <button
+          type="button"
+          onClick={onCancel}
+          className="px-6 py-3 bg-[#0d0d0d] hover:bg-[#2a2a2a] text-[#b8b0a8] border border-[#333333] rounded-lg font-semibold"
+        >
+          Cancel
+        </button>
+      </div>
     </form>
   );
 }
