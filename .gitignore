@@ -31,15 +31,17 @@ yarn-error.log*
 .pnpm-debug.log*
 
 # env files (can opt-in for committing if needed)
-.env*
+.env
+.env.local
+.env*.local
 
 # vercel
 .vercel
 
+# misc
+*.log
+.DS_Store
+
 # typescript
 *.tsbuildinfo
 next-env.d.ts
-
-.vercel
-
-/app/generated/prisma

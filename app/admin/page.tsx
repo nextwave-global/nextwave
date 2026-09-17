@@ -1,5 +1,4 @@
 "use client";
-
 import { useState, useEffect } from "react";
 import {
   Search,
@@ -17,15 +16,21 @@ interface Registration {
   phone: string | null;
   status: string;
   createdAt: string;
-  event: {
-    id: string;
-    title: string;
-    date: string;
-  };
+  event: { id: string; title: string; date: string };
+}
+interface WaitlistEntry {
+  id: string;
+  full_name: string;
+  email: string;
+  phone: string;
+  interest: string;
+  created_at: string;
 }
 
 export default function AdminDashboard() {
+  const [tab, setTab] = useState<"registrations" | "waitlist">("registrations");
   const [registrations, setRegistrations] = useState<Registration[]>([]);
+  const [waitlist, setWaitlist] = useState<WaitlistEntry[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
@@ -33,88 +38,107 @@ export default function AdminDashboard() {
   useEffect(() => {
     fetchRegistrations();
   }, [statusFilter]);
+  useEffect(() => {
+    fetchWaitlist();
+  }, []);
 
   const fetchRegistrations = async () => {
     setLoading(true);
     try {
-      const url = `/api/admin/registrations${
-        statusFilter !== "all" ? `?status=${statusFilter}` : ""
-      }`;
-      const response = await fetch(url);
-      const data = await response.json();
+      const url = `/api/admin/registrations${statusFilter !== "all" ? `?status=${statusFilter}` : ""}`;
+      const res = await fetch(url);
+      const data = await res.json();
       setRegistrations(data.registrations || []);
-    } catch (error) {
-      console.error("Error fetching registrations:", error);
+    } catch (e) {
+      console.error(e);
     } finally {
       setLoading(false);
     }
   };
 
-  const deleteRegistration = async (id: string) => {
-    if (!confirm("Are you sure you want to delete this registration?")) return;
-
+  const fetchWaitlist = async () => {
     try {
-      const response = await fetch(`/api/admin/registrations?id=${id}`, {
-        method: "DELETE",
-      });
-      if (response.ok) {
-        setRegistrations(registrations.filter((reg) => reg.id !== id));
-        alert("Registration deleted successfully");
-      } else {
-        const data = await response.json();
-        alert(data.error || "Failed to delete registration");
-      }
-    } catch (error) {
-      console.error("Error deleting registration:", error);
-      alert("Failed to delete registration");
+      const res = await fetch("/api/admin/waitlist");
+      const data = await res.json();
+      setWaitlist(data.entries || []);
+    } catch (e) {
+      console.error(e);
+    }
+  };
+
+  const deleteRegistration = async (id: string) => {
+    if (!confirm("Delete this registration?")) return;
+    const res = await fetch(`/api/admin/registrations?id=${id}`, {
+      method: "DELETE",
+    });
+    if (res.ok) {
+      setRegistrations(registrations.filter((r) => r.id !== id));
+      alert("Deleted");
+    } else {
+      const data = await res.json();
+      alert(data.error || "Failed to delete");
     }
   };
 
   const updateStatus = async (id: string, newStatus: string) => {
-    try {
-      const response = await fetch(`/api/admin/registrations/${id}`, {
-        method: "PATCH",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ status: newStatus }),
-      });
-      if (response.ok) {
-        setRegistrations(
-          registrations.map((reg) =>
-            reg.id === id ? { ...reg, status: newStatus } : reg,
-          ),
-        );
-        alert("Status updated successfully");
-      } else {
-        const data = await response.json();
-        alert(data.error || "Failed to update status");
-      }
-    } catch (error) {
-      console.error("Error updating status:", error);
-      alert("Failed to update status");
+    const res = await fetch(`/api/admin/registrations/${id}`, {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ status: newStatus }),
+    });
+    if (res.ok) {
+      setRegistrations(
+        registrations.map((r) =>
+          r.id === id ? { ...r, status: newStatus } : r,
+        ),
+      );
+      alert("Updated");
+    } else {
+      const data = await res.json();
+      alert(data.error || "Failed to update");
     }
   };
 
   const exportCSV = () => {
-    const headers = ["Name", "Email", "Phone", "Event", "Date", "Status"];
-    const rows = registrations.map((reg) => [
-      reg.fullName,
-      reg.email,
-      reg.phone || "N/A",
-      reg.event.title,
-      new Date(reg.createdAt).toLocaleDateString(),
-      reg.status,
-    ]);
+    if (tab === "registrations") {
+      const headers = ["Name", "Email", "Phone", "Event", "Date", "Status"];
+      const rows = registrations.map((r) => [
+        r.fullName,
+        r.email,
+        r.phone || "N/A",
+        r.event.title,
+        new Date(r.createdAt).toLocaleDateString(),
+        r.status,
+      ]);
+      downloadCSV(
+        [headers, ...rows],
+        `registrations-${new Date().toISOString().split("T")[0]}.csv`,
+      );
+    } else {
+      const headers = ["Name", "Email", "WhatsApp", "Interest", "Joined"];
+      const rows = waitlist.map((w) => [
+        w.full_name,
+        w.email,
+        w.phone,
+        w.interest,
+        new Date(w.created_at).toLocaleDateString(),
+      ]);
+      downloadCSV(
+        [headers, ...rows],
+        `academy-waitlist-${new Date().toISOString().split("T")[0]}.csv`,
+      );
+    }
+  };
 
-    const csvContent = [
-      headers.join(","),
-      ...rows.map((row) => row.join(",")),
-    ].join("\n");
-
-    const blob = new Blob([csvContent], { type: "text/csv" });
+  const downloadCSV = (rows: (string | number)[][], filename: string) => {
+    const csv = rows
+      .map((r) => r.map((c) => `"${String(c).replace(/"/g, '""')}"`).join(","))
+      .join("\n");
+    const blob = new Blob([csv], { type: "text/csv" });
     const url = window.URL.createObjectURL(blob);
     const a = document.createElement("a");
     a.href = url;
-    a.download = `registrations-${new Date().toISOString().split("T")[0]}.csv`;
+    a.download = filename;
     a.click();
     window.URL.revokeObjectURL(url);
   };
@@ -124,29 +148,28 @@ export default function AdminDashboard() {
     window.location.href = "/admin/login";
   };
 
-  const filteredRegistrations = registrations.filter(
-    (reg) =>
-      reg.fullName.toLowerCase().includes(search.toLowerCase()) ||
-      reg.email.toLowerCase().includes(search.toLowerCase()) ||
-      reg.event.title.toLowerCase().includes(search.toLowerCase()),
+  const filtered = registrations.filter(
+    (r) =>
+      r.fullName.toLowerCase().includes(search.toLowerCase()) ||
+      r.email.toLowerCase().includes(search.toLowerCase()) ||
+      r.event.title.toLowerCase().includes(search.toLowerCase()),
   );
-
-  if (loading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-[#0d0d0d]">
-        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-[#c9a84c]"></div>
-      </div>
-    );
-  }
+  const filteredWaitlist = waitlist.filter(
+    (w) =>
+      w.full_name.toLowerCase().includes(search.toLowerCase()) ||
+      w.email.toLowerCase().includes(search.toLowerCase()),
+  );
 
   return (
     <div className="min-h-screen bg-[#0d0d0d] p-6">
       <div className="max-w-7xl mx-auto">
         <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-8">
           <div>
-            <h1 className="text-3xl font-bold text-white">Registrations</h1>
+            <h1 className="text-3xl font-bold text-white">Admin Dashboard</h1>
             <p className="text-[#7a7270] mt-1">
-              Total: {registrations.length} registrations
+              {tab === "registrations"
+                ? `${registrations.length} registrations`
+                : `${waitlist.length} on academy waitlist`}
             </p>
           </div>
           <div className="flex gap-3">
@@ -167,7 +190,21 @@ export default function AdminDashboard() {
           </div>
         </div>
 
-        {/* Filters */}
+        <div className="flex gap-2 mb-4">
+          <button
+            onClick={() => setTab("registrations")}
+            className={`px-4 py-2 rounded-lg text-sm font-semibold transition ${tab === "registrations" ? "bg-[#c9a84c] text-[#0d0d0d]" : "bg-[#1a1a1a] text-[#b8b0a8] border border-[#333333]"}`}
+          >
+            Registrations
+          </button>
+          <button
+            onClick={() => setTab("waitlist")}
+            className={`px-4 py-2 rounded-lg text-sm font-semibold transition ${tab === "waitlist" ? "bg-[#c9a84c] text-[#0d0d0d]" : "bg-[#1a1a1a] text-[#b8b0a8] border border-[#333333]"}`}
+          >
+            Academy Waitlist
+          </button>
+        </div>
+
         <div className="bg-[#1a1a1a] rounded-xl border border-[#333333] p-4 mb-6">
           <div className="flex flex-col md:flex-row gap-4">
             <div className="flex-1 relative">
@@ -177,133 +214,186 @@ export default function AdminDashboard() {
               />
               <input
                 type="text"
-                placeholder="Search by name, email, or event..."
+                placeholder="Search..."
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
-                className="w-full pl-10 pr-4 py-2 bg-[#0d0d0d] border border-[#333333] rounded-lg focus:ring-2 focus:ring-[#c9a84c] focus:border-transparent outline-none text-white"
+                className="w-full pl-10 pr-4 py-2 bg-[#0d0d0d] border border-[#333333] rounded-lg focus:ring-2 focus:ring-[#c9a84c] outline-none text-white"
               />
             </div>
-            <select
-              value={statusFilter}
-              onChange={(e) => setStatusFilter(e.target.value)}
-              className="px-4 py-2 bg-[#0d0d0d] border border-[#333333] rounded-lg focus:ring-2 focus:ring-[#c9a84c] focus:border-transparent outline-none text-white"
-            >
-              <option value="all">All Status</option>
-              <option value="confirmed">Confirmed</option>
-              <option value="cancelled">Cancelled</option>
-              <option value="waitlisted">Waitlisted</option>
-            </select>
+            {tab === "registrations" && (
+              <select
+                value={statusFilter}
+                onChange={(e) => setStatusFilter(e.target.value)}
+                className="px-4 py-2 bg-[#0d0d0d] border border-[#333333] rounded-lg focus:ring-2 focus:ring-[#c9a84c] outline-none text-white"
+              >
+                <option value="all">All Status</option>
+                <option value="confirmed">Confirmed</option>
+                <option value="cancelled">Cancelled</option>
+                <option value="waitlisted">Waitlisted</option>
+              </select>
+            )}
           </div>
         </div>
 
-        {/* Table */}
         <div className="bg-[#1a1a1a] rounded-xl border border-[#333333] overflow-hidden">
           <div className="overflow-x-auto">
-            <table className="w-full">
-              <thead className="bg-[#0d0d0d] border-b border-[#333333]">
-                <tr>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-[#7a7270] uppercase tracking-wider">
-                    Name
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-[#7a7270] uppercase tracking-wider">
-                    Email
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-[#7a7270] uppercase tracking-wider">
-                    Phone
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-[#7a7270] uppercase tracking-wider">
-                    Event
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-[#7a7270] uppercase tracking-wider">
-                    Date
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-[#7a7270] uppercase tracking-wider">
-                    Status
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-[#7a7270] uppercase tracking-wider">
-                    Actions
-                  </th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-[#333333]">
-                {filteredRegistrations.length === 0 ? (
+            {tab === "registrations" ? (
+              <table className="w-full">
+                <thead className="bg-[#0d0d0d] border-b border-[#333333]">
                   <tr>
-                    <td
-                      colSpan={7}
-                      className="px-6 py-8 text-center text-[#7a7270]"
-                    >
-                      No registrations found
-                    </td>
+                    {[
+                      "Name",
+                      "Email",
+                      "Phone",
+                      "Event",
+                      "Date",
+                      "Status",
+                      "Actions",
+                    ].map((h) => (
+                      <th
+                        key={h}
+                        className="px-6 py-3 text-left text-xs font-medium text-[#7a7270] uppercase tracking-wider"
+                      >
+                        {h}
+                      </th>
+                    ))}
                   </tr>
-                ) : (
-                  filteredRegistrations.map((reg) => (
-                    <tr key={reg.id} className="hover:bg-[#2a2a2a] transition">
-                      <td className="px-6 py-4 whitespace-nowrap">
-                        <div className="font-medium text-white">
-                          {reg.fullName}
-                        </div>
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-[#b8b0a8]">
-                        {reg.email}
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-[#b8b0a8]">
-                        {reg.phone || "—"}
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap">
-                        <div className="text-sm font-medium text-white">
-                          {reg.event.title}
-                        </div>
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-[#b8b0a8]">
-                        {new Date(reg.createdAt).toLocaleDateString()}
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap">
-                        <span
-                          className={`px-2 py-1 rounded-full text-xs font-medium ${
-                            reg.status === "confirmed"
-                              ? "bg-green-500/20 text-green-400"
-                              : reg.status === "cancelled"
-                                ? "bg-red-500/20 text-red-400"
-                                : "bg-yellow-500/20 text-yellow-400"
-                          }`}
-                        >
-                          {reg.status}
-                        </span>
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm">
-                        <div className="flex items-center gap-2">
-                          {reg.status !== "confirmed" && (
-                            <button
-                              onClick={() => updateStatus(reg.id, "confirmed")}
-                              className="p-1 text-green-400 hover:bg-green-500/20 rounded transition"
-                              title="Confirm"
-                            >
-                              <CheckCircle size={18} />
-                            </button>
-                          )}
-                          {reg.status !== "cancelled" && (
-                            <button
-                              onClick={() => updateStatus(reg.id, "cancelled")}
-                              className="p-1 text-red-400 hover:bg-red-500/20 rounded transition"
-                              title="Cancel"
-                            >
-                              <XCircle size={18} />
-                            </button>
-                          )}
-                          <button
-                            onClick={() => deleteRegistration(reg.id)}
-                            className="p-1 text-[#7a7270] hover:text-red-400 hover:bg-red-500/20 rounded transition"
-                            title="Delete"
-                          >
-                            <Trash2 size={18} />
-                          </button>
-                        </div>
+                </thead>
+                <tbody className="divide-y divide-[#333333]">
+                  {filtered.length === 0 ? (
+                    <tr>
+                      <td
+                        colSpan={7}
+                        className="px-6 py-8 text-center text-[#7a7270]"
+                      >
+                        No registrations found
                       </td>
                     </tr>
-                  ))
-                )}
-              </tbody>
-            </table>
+                  ) : (
+                    filtered.map((reg) => (
+                      <tr
+                        key={reg.id}
+                        className="hover:bg-[#2a2a2a] transition"
+                      >
+                        <td className="px-6 py-4 whitespace-nowrap font-medium text-white">
+                          {reg.fullName}
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-[#b8b0a8]">
+                          {reg.email}
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-[#b8b0a8]">
+                          {reg.phone || "—"}
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-white">
+                          {reg.event.title}
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-[#b8b0a8]">
+                          {new Date(reg.createdAt).toLocaleDateString()}
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap">
+                          <span
+                            className={`px-2 py-1 rounded-full text-xs font-medium ${reg.status === "confirmed" ? "bg-green-500/20 text-green-400" : reg.status === "cancelled" ? "bg-red-500/20 text-red-400" : "bg-yellow-500/20 text-yellow-400"}`}
+                          >
+                            {reg.status}
+                          </span>
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm">
+                          <div className="flex items-center gap-2">
+                            {reg.status !== "confirmed" && (
+                              <button
+                                onClick={() =>
+                                  updateStatus(reg.id, "confirmed")
+                                }
+                                className="p-1 text-green-400 hover:bg-green-500/20 rounded transition"
+                                title="Confirm"
+                              >
+                                <CheckCircle size={18} />
+                              </button>
+                            )}
+                            {reg.status !== "cancelled" && (
+                              <button
+                                onClick={() =>
+                                  updateStatus(reg.id, "cancelled")
+                                }
+                                className="p-1 text-red-400 hover:bg-red-500/20 rounded transition"
+                                title="Cancel"
+                              >
+                                <XCircle size={18} />
+                              </button>
+                            )}
+                            <button
+                              onClick={() => deleteRegistration(reg.id)}
+                              className="p-1 text-[#7a7270] hover:text-red-400 hover:bg-red-500/20 rounded transition"
+                              title="Delete"
+                            >
+                              <Trash2 size={18} />
+                            </button>
+                          </div>
+                        </td>
+                      </tr>
+                    ))
+                  )}
+                </tbody>
+              </table>
+            ) : (
+              <table className="w-full">
+                <thead className="bg-[#0d0d0d] border-b border-[#333333]">
+                  <tr>
+                    {["Name", "Email", "WhatsApp", "Interest", "Joined"].map(
+                      (h) => (
+                        <th
+                          key={h}
+                          className="px-6 py-3 text-left text-xs font-medium text-[#7a7270] uppercase tracking-wider"
+                        >
+                          {h}
+                        </th>
+                      ),
+                    )}
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-[#333333]">
+                  {filteredWaitlist.length === 0 ? (
+                    <tr>
+                      <td
+                        colSpan={5}
+                        className="px-6 py-8 text-center text-[#7a7270]"
+                      >
+                        No waitlist entries yet
+                      </td>
+                    </tr>
+                  ) : (
+                    filteredWaitlist.map((w) => (
+                      <tr key={w.id} className="hover:bg-[#2a2a2a] transition">
+                        <td className="px-6 py-4 whitespace-nowrap font-medium text-white">
+                          {w.full_name}
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-[#b8b0a8]">
+                          {w.email}
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-[#b8b0a8]">
+                          <a
+                            href={`https://wa.me/${w.phone.replace(/\D/g, "")}`}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="hover:text-[#c9a84c] transition"
+                          >
+                            {w.phone}
+                          </a>
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm">
+                          <span className="px-2 py-1 rounded-full text-xs font-medium bg-[#c9a84c]/20 text-[#c9a84c]">
+                            {w.interest}
+                          </span>
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-[#b8b0a8]">
+                          {new Date(w.created_at).toLocaleDateString()}
+                        </td>
+                      </tr>
+                    ))
+                  )}
+                </tbody>
+              </table>
+            )}
           </div>
         </div>
       </div>

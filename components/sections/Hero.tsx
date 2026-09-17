@@ -1,8 +1,7 @@
 "use client";
-
 import { motion } from "framer-motion";
 import Link from "next/link";
-import { ArrowRight, Sparkles, BookOpen } from "lucide-react";
+import { ArrowRight, Sparkles, BookOpen, GraduationCap } from "lucide-react";
 
 const container = {
   hidden: { opacity: 0 },
@@ -11,16 +10,11 @@ const container = {
     transition: { staggerChildren: 0.15, delayChildren: 0.1 },
   },
 };
-
-const item = {
-  hidden: { opacity: 0, y: 30 },
-  show: { opacity: 1, y: 0 },
-};
+const item = { hidden: { opacity: 0, y: 30 }, show: { opacity: 1, y: 0 } };
 
 export default function Hero() {
   return (
     <>
-      {/* JSON-LD Structured Data */}
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{
@@ -28,10 +22,7 @@ export default function Hero() {
             "@context": "https://schema.org",
             "@type": "Organization",
             name: "NextWave Global",
-            description:
-              "Empowering students through events, mentorship, and career development",
-            url:
-              process.env.NEXT_PUBLIC_BASE_URL || "http://nextwaveglobal.vercel.app/",
+            url: process.env.NEXT_PUBLIC_BASE_URL,
             logo: "/logo.png",
             sameAs: [
               "https://www.linkedin.com/company/nextwave-g/",
@@ -56,22 +47,9 @@ export default function Hero() {
             "radial-gradient(ellipse at center, #1a1a1a 0%, #0d0d0d 100%)",
         }}
       >
-        {/* Background Decorations */}
         <div className="absolute inset-0 pointer-events-none">
           <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-[#c9a84c]/5 rounded-full blur-3xl" />
           <div className="absolute bottom-1/3 right-1/4 w-80 h-80 bg-[#c9a84c]/3 rounded-full blur-3xl" />
-          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-[#c9a84c]/[0.02] rounded-full blur-3xl" />
-        </div>
-
-        {/* Grid Pattern */}
-        <div className="absolute inset-0 opacity-[0.03] pointer-events-none">
-          <div
-            className="absolute inset-0"
-            style={{
-              backgroundImage: `radial-gradient(circle at 20% 50%, #c9a84c 1px, transparent 1px)`,
-              backgroundSize: "48px 48px",
-            }}
-          />
         </div>
 
         <div className="max-w-5xl mx-auto text-center relative z-10 py-12">
@@ -100,8 +78,8 @@ export default function Hero() {
             variants={item}
             className="text-base sm:text-lg md:text-xl text-[#b8b0a8] mb-10 max-w-2xl mx-auto px-4"
           >
-            NextWave Global is a movement that empowers students to thrive
-            beyond the classroom through transformative events and programs.
+            NextWave Global empowers students to thrive beyond the classroom —
+            and we&apos;re evolving into an academy.
           </motion.p>
 
           <motion.div
@@ -109,25 +87,28 @@ export default function Hero() {
             className="flex flex-col sm:flex-row gap-4 justify-center items-center"
           >
             <Link
-              href="https://chat.whatsapp.com/CGacyht0SVp1YzwTnm3wjm?mode=gi_t"
-              target="_blank"
-              rel="noopener noreferrer"
+              href="/academy"
               className="inline-flex items-center justify-center gap-2 px-8 py-4 bg-[#c9a84c] hover:bg-[#a8873a] text-[#0d0d0d] font-bold rounded-full transition-all hover:shadow-lg hover:shadow-[#c9a84c]/25 active:scale-95 touch-manipulation min-h-[48px]"
             >
-              Join the Movement
-              <ArrowRight className="w-5 h-5" />
+              <GraduationCap className="w-5 h-5" />
+              Join the Academy
             </Link>
-
             <Link
               href="/library"
-              className="inline-flex items-center justify-center gap-2 px-8 py-4 bg-[#1a1a1a] hover:bg-[#2a2a2a] text-white font-bold rounded-full transition-all border border-[#333333] hover:border-[#c9a84c] hover:shadow-lg hover:shadow-[#c9a84c]/10 active:scale-95 touch-manipulation min-h-[48px]"
+              className="inline-flex items-center justify-center gap-2 px-8 py-4 bg-[#1a1a1a] hover:bg-[#2a2a2a] text-white font-bold rounded-full transition-all border border-[#333333] hover:border-[#c9a84c] active:scale-95 touch-manipulation min-h-[48px]"
             >
               <BookOpen className="w-5 h-5 text-[#c9a84c]" />
               Visit Our Library
             </Link>
+            <Link
+              href="#register"
+              className="inline-flex items-center justify-center gap-2 px-6 py-3 bg-transparent hover:bg-[#c9a84c]/10 text-[#c9a84c] font-semibold rounded-full border border-[#c9a84c]/40 hover:border-[#c9a84c] transition-all active:scale-95 touch-manipulation text-sm"
+            >
+              <span className="w-2 h-2 rounded-full bg-green-500 animate-pulse" />
+              Build With Break — Sept 18
+            </Link>
           </motion.div>
 
-          {/* Trust Indicators */}
           <motion.div
             variants={item}
             className="mt-12 flex flex-wrap items-center justify-center gap-6 text-xs text-[#7a7270]"

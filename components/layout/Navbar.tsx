@@ -3,7 +3,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { useState, useEffect } from "react";
-import { Menu, X, BookOpen } from "lucide-react";
+import { Menu, X, BookOpen, GraduationCap } from "lucide-react";
 
 const NAV_ITEMS = [
   { label: "About", id: "about" },
@@ -16,23 +16,17 @@ export default function Navbar() {
   const [isScrolled, setIsScrolled] = useState(false);
 
   useEffect(() => {
-    const handleScroll = () => {
-      setIsScrolled(window.scrollY > 20);
-    };
+    const handleScroll = () => setIsScrolled(window.scrollY > 20);
     window.addEventListener("scroll", handleScroll, { passive: true });
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
   const scrollTo = (id: string) => {
-    const element = document.getElementById(id);
-    if (element) {
+    const el = document.getElementById(id);
+    if (el) {
       const offset = 80;
-      const elementPosition = element.getBoundingClientRect().top;
-      const offsetPosition = elementPosition + window.pageYOffset - offset;
-      window.scrollTo({
-        top: offsetPosition,
-        behavior: "smooth",
-      });
+      const pos = el.getBoundingClientRect().top + window.pageYOffset - offset;
+      window.scrollTo({ top: pos, behavior: "smooth" });
     }
     setIsMobileMenuOpen(false);
   };
@@ -65,7 +59,6 @@ export default function Navbar() {
             </span>
           </Link>
 
-          {/* Desktop Navigation */}
           <div className="hidden md:flex items-center gap-8 text-xs font-semibold uppercase tracking-widest text-[#b8b0a8]">
             {NAV_ITEMS.map((item) => (
               <button
@@ -78,6 +71,14 @@ export default function Navbar() {
               </button>
             ))}
             <Link
+              href="/academy"
+              className="flex items-center gap-1.5 hover:text-[#c9a84c] transition-colors duration-200 relative group"
+            >
+              <GraduationCap className="w-3.5 h-3.5" />
+              Academy
+              <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-[#c9a84c] transition-all duration-300 group-hover:w-full" />
+            </Link>
+            <Link
               href="/library"
               className="flex items-center gap-1.5 hover:text-[#c9a84c] transition-colors duration-200 relative group"
             >
@@ -87,7 +88,6 @@ export default function Navbar() {
             </Link>
           </div>
 
-          {/* Mobile Menu Button */}
           <button
             className="md:hidden text-[#b8b0a8] hover:text-[#c9a84c] transition p-2 touch-manipulation"
             onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
@@ -102,7 +102,6 @@ export default function Navbar() {
         </div>
       </nav>
 
-      {/* Mobile Menu */}
       <div
         className={`md:hidden fixed inset-0 z-40 bg-[#0d0d0d]/98 backdrop-blur-xl transition-all duration-300 ${
           isMobileMenuOpen
@@ -116,18 +115,24 @@ export default function Navbar() {
             <button
               key={item.label}
               onClick={() => scrollTo(item.id)}
-              className="w-full text-left py-4 px-4 text-sm font-semibold uppercase tracking-widest text-[#b8b0a8] hover:text-[#c9a84c] hover:bg-[#1a1a1a] rounded-xl transition-all touch-manipulation active:scale-98"
+              className="w-full text-left py-4 px-4 text-sm font-semibold uppercase tracking-widest text-[#b8b0a8] hover:text-[#c9a84c] hover:bg-[#1a1a1a] rounded-xl transition-all touch-manipulation"
             >
               {item.label}
             </button>
           ))}
           <Link
+            href="/academy"
+            onClick={() => setIsMobileMenuOpen(false)}
+            className="w-full py-4 px-4 text-sm font-semibold uppercase tracking-widest text-[#b8b0a8] hover:text-[#c9a84c] hover:bg-[#1a1a1a] rounded-xl transition-all touch-manipulation flex items-center gap-2"
+          >
+            <GraduationCap className="w-4 h-4" /> Academy
+          </Link>
+          <Link
             href="/library"
             onClick={() => setIsMobileMenuOpen(false)}
-            className="w-full text-left py-4 px-4 text-sm font-semibold uppercase tracking-widest text-[#b8b0a8] hover:text-[#c9a84c] hover:bg-[#1a1a1a] rounded-xl transition-all touch-manipulation active:scale-98 flex items-center gap-2"
+            className="w-full py-4 px-4 text-sm font-semibold uppercase tracking-widest text-[#b8b0a8] hover:text-[#c9a84c] hover:bg-[#1a1a1a] rounded-xl transition-all touch-manipulation flex items-center gap-2"
           >
-            <BookOpen className="w-4 h-4" />
-            Library
+            <BookOpen className="w-4 h-4" /> Library
           </Link>
         </div>
       </div>

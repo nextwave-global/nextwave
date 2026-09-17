@@ -15,7 +15,6 @@ export function StatusBadge({ status }: StatusBadgeProps) {
         return "bg-blue-500/20 text-blue-400 border border-blue-500/30";
     }
   };
-
   return (
     <span
       className={`text-[10px] font-bold uppercase tracking-wider px-2.5 py-0.5 rounded-full ${getStyles()}`}

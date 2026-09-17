@@ -1,5 +1,4 @@
 "use client";
-
 import { motion } from "framer-motion";
 import { Quote, Sparkles } from "lucide-react";
 
@@ -22,16 +21,13 @@ export default function Story() {
           </h2>
           <p className="text-[#b8b0a8] mb-4 text-sm md:text-base leading-relaxed">
             NextWave Global started as a small WhatsApp channel sharing personal
-            development insights to help students navigate life and grow
-            holistically.
+            development insights to help students grow holistically.
           </p>
           <p className="text-[#b8b0a8] text-sm md:text-base leading-relaxed">
             Seeing the impact of initiatives like Scholar Reboot inspired us to
-            expand our reach and bridge the gap between education and real-world
-            opportunities.
+            expand into a full academy.
           </p>
         </motion.div>
-
         <motion.div
           initial={{ opacity: 0, x: 20 }}
           whileInView={{ opacity: 1, x: 0 }}
