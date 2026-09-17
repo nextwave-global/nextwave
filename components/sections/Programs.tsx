@@ -168,7 +168,9 @@ export default function Programs() {
                     {item.title}
                   </h4>
                   <p className="text-[#7a7270] text-xs leading-relaxed mb-3 line-clamp-2">
-                    {item.description ||
+                    {(item.status === "Upcoming"
+                      ? item.description
+                      : item.desc) ||
                       "An initiative that helped students grow."}
                   </p>
                   <div className="space-y-1.5 text-xs border-t border-[#333333] pt-3">
