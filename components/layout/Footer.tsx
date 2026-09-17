@@ -12,138 +12,129 @@ import {
 import Link from "next/link";
 
 export default function Footer() {
-  const scrollToSection = (id: string) => {
-    document.getElementById(id)?.scrollIntoView({ behavior: "smooth" });
-  };
-
   return (
-    <footer className="bg-[#0d0d0d] border-t border-[#333333] py-10 sm:py-12 px-4 sm:px-6">
-      <div className="max-w-7xl mx-auto">
-        {/* Two columns on desktop, stacked on mobile */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-10 md:gap-12 mb-10">
-          {/* Column 1: Brand + socials */}
-          <div>
-            <h3 className="text-xl md:text-2xl font-bold mb-3 uppercase tracking-tighter text-white">
+    <footer className="bg-[#0d0d0d] border-t border-[#262626] pt-12 pb-8 px-5 sm:px-8 text-neutral-300">
+      <div className="max-w-7xl mx-auto space-y-10 sm:space-y-12">
+        {/* Main Grid */}
+        <div className="grid grid-cols-1 md:grid-cols-12 gap-10 md:gap-8 items-start">
+          {/* Brand Column */}
+          <div className="md:col-span-6 space-y-4">
+            <h3 className="text-2xl font-bold tracking-tight text-white uppercase">
               Nextwave <span className="text-[#c9a84c]">Global</span>
             </h3>
-            <p className="text-[#7a7270] max-w-sm mb-5 leading-relaxed text-sm">
+            <p className="text-sm text-[#8c8582] leading-relaxed max-w-sm">
               Equipping students with the knowledge, skills, and mindset to
               thrive academically and professionally.
             </p>
-            <div className="flex gap-3">
-              <SocialIcon
-                url="https://www.linkedin.com/company/nextwave-g/"
-                bgColor="#0077B5"
-                fgColor="#FFFFFF"
-                style={{ height: 40, width: 40 }}
-                target="_blank"
-                rel="noopener noreferrer"
-              />
-              <SocialIcon
-                url="https://t.me/+NdjMKKMF6rNjNjBk"
-                bgColor="#0088CC"
-                fgColor="#FFFFFF"
-                style={{ height: 40, width: 40 }}
-                target="_blank"
-                rel="noopener noreferrer"
-              />
-              <SocialIcon
-                url="https://www.instagram.com/next_waveglobal/"
-                bgColor="#E4405F"
-                fgColor="#FFFFFF"
-                style={{ height: 40, width: 40 }}
-                target="_blank"
-                rel="noopener noreferrer"
-              />
+
+            {/* Tagline Badge */}
+            <div className="inline-flex items-center gap-2 rounded-full border border-[#c9a84c]/20 bg-[#c9a84c]/10 px-3 py-1 text-xs font-semibold tracking-wider text-[#c9a84c]">
+              <Sparkles className="w-3.5 h-3.5 shrink-0" />
+              <span>LEARN. EARN. LEAD.</span>
+            </div>
+
+            {/* Social Icons */}
+            <div className="flex items-center gap-3 pt-2">
+              <div className="rounded-full p-0.5 border border-[#0077b5]/30 bg-[#0077b5]/10 hover:bg-[#0077b5]/25 hover:border-[#0077b5] transition-all hover:scale-105">
+                <SocialIcon
+                  url="https://www.linkedin.com/company/nextwave-g/"
+                  bgColor="#0077b5"
+                  fgColor="#ffffff"
+                  style={{ height: 34, width: 34 }}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                />
+              </div>
+
+              <div className="rounded-full p-0.5 border border-[#0088cc]/30 bg-[#0088cc]/10 hover:bg-[#0088cc]/25 hover:border-[#0088cc] transition-all hover:scale-105">
+                <SocialIcon
+                  url="https://t.me/+NdjMKKMF6rNjNjBk"
+                  bgColor="#0088cc"
+                  fgColor="#ffffff"
+                  style={{ height: 34, width: 34 }}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                />
+              </div>
+
+              <div className="rounded-full p-0.5 border border-[#e4405f]/30 bg-[#e4405f]/10 hover:bg-[#e4405f]/25 hover:border-[#e4405f] transition-all hover:scale-105">
+                <SocialIcon
+                  url="https://www.instagram.com/next_waveglobal/"
+                  bgColor="#e4405f"
+                  fgColor="#ffffff"
+                  style={{ height: 34, width: 34 }}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                />
+              </div>
             </div>
           </div>
 
-          {/* Column 2: Connect */}
-          <div>
-            <h4 className="font-bold mb-4 text-xs uppercase tracking-widest text-[#c9a84c]">
-              Connect With Us
+          {/* Quick Links Column */}
+          <div className="md:col-span-3 space-y-4">
+            <h4 className="text-xs font-bold uppercase tracking-widest text-[#c9a84c]">
+              Resources
             </h4>
-            <ul className="space-y-3 text-sm text-[#7a7270]">
-              <li className="flex items-center gap-3">
-                <Mail className="w-4 h-4 text-[#c9a84c] shrink-0" />
-                <a
-                  href="mailto:nextwaveglobalinfo@gmail.com"
-                  className="hover:text-[#c9a84c] transition break-all"
-                >
-                  nextwaveglobalinfo@gmail.com
-                </a>
-              </li>
-              <li className="flex items-center gap-3">
-                <MapPin className="w-4 h-4 text-[#c9a84c] shrink-0" />
-                <span>Virtual &amp; Physical Events</span>
-              </li>
-              <li className="flex items-center gap-3">
-                <Sparkles className="w-4 h-4 text-[#c9a84c] shrink-0" />
-                <span className="text-[#c9a84c] font-bold italic text-base">
-                  Learn. Earn. Lead.
-                </span>
-              </li>
-              <li className="flex items-center gap-3">
-                <GraduationCap className="w-4 h-4 text-[#c9a84c] shrink-0" />
+            <ul className="space-y-3 text-sm text-[#8c8582]">
+              <li>
                 <Link
                   href="/academy"
-                  className="hover:text-[#c9a84c] transition"
+                  className="flex items-center gap-2 hover:text-[#c9a84c] transition-colors py-1"
                 >
-                  Join the Academy Waitlist
+                  <GraduationCap className="w-4 h-4 text-[#c9a84c] shrink-0" />
+                  <span>Academy Waitlist</span>
                 </Link>
               </li>
-              <li className="flex items-center gap-3">
-                <BookOpen className="w-4 h-4 text-[#c9a84c] shrink-0" />
+              <li>
                 <Link
                   href="/library"
-                  className="hover:text-[#c9a84c] transition"
+                  className="flex items-center gap-2 hover:text-[#c9a84c] transition-colors py-1"
                 >
-                  Visit Our Library
+                  <BookOpen className="w-4 h-4 text-[#c9a84c] shrink-0" />
+                  <span>Digital Library</span>
                 </Link>
+              </li>
+            </ul>
+          </div>
+
+          {/* Contact Column */}
+          <div className="md:col-span-3 space-y-4">
+            <h4 className="text-xs font-bold uppercase tracking-widest text-[#c9a84c]">
+              Contact
+            </h4>
+            <ul className="space-y-3 text-sm text-[#8c8582]">
+              <li>
+                <a
+                  href="mailto:nextwaveglobalinfo@gmail.com"
+                  className="flex items-start gap-2 hover:text-[#c9a84c] transition-colors py-1"
+                >
+                  <Mail className="w-4 h-4 text-[#c9a84c] mt-0.5 shrink-0" />
+                  <span className="break-all">
+                    nextwaveglobalinfo@gmail.com
+                  </span>
+                </a>
+              </li>
+              <li className="flex items-center gap-2 py-1">
+                <MapPin className="w-4 h-4 text-[#c9a84c] shrink-0" />
+                <span>Virtual &amp; Physical Events</span>
               </li>
             </ul>
           </div>
         </div>
 
-        {/* Bottom bar */}
-        <div className="border-t border-[#333333] pt-6 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-          <p className="text-xs text-[#7a7270] uppercase tracking-widest text-center sm:text-left">
+        {/* Bottom Bar */}
+        <div className="border-t border-[#262626] pt-6 flex flex-col-reverse sm:flex-row items-center justify-between gap-6">
+          <p className="text-xs text-[#6b6462] tracking-wider text-center sm:text-left">
             © {new Date().getFullYear()} Nextwave Global. All Rights Reserved.
           </p>
 
-          <div className="flex items-center justify-center sm:justify-end gap-5 text-xs font-semibold text-[#7a7270] uppercase tracking-widest">
+          <div className="flex items-center justify-center">
             <button
-              onClick={() => scrollToSection("about")}
-              className="hover:text-[#c9a84c] transition"
-            >
-              About
-            </button>
-            <button
-              onClick={() => scrollToSection("programs")}
-              className="hover:text-[#c9a84c] transition"
-            >
-              Programs
-            </button>
-            <Link
-              href="/academy"
-              className="hover:text-[#c9a84c] transition"
-            >
-              Academy
-            </Link>
-            <Link
-              href="/library"
-              className="hover:text-[#c9a84c] transition"
-            >
-              Library
-            </Link>
-            <button
-              onClick={() =>
-                window.scrollTo({ top: 0, behavior: "smooth" })
-              }
-              className="p-2 bg-[#1a1a1a] hover:bg-[#c9a84c] rounded-full transition-colors shrink-0"
+              onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
+              className="w-10 h-10 inline-flex items-center justify-center bg-[#171717] hover:bg-[#c9a84c] text-neutral-400 hover:text-black rounded-full transition-all border border-[#333333] cursor-pointer"
               aria-label="Scroll to top"
             >
-              <ArrowUp className="w-4 h-4 text-[#b8b0a8]" />
+              <ArrowUp className="w-4 h-4" />
             </button>
           </div>
         </div>
