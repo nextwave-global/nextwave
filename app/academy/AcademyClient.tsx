@@ -13,7 +13,10 @@ import {
   Mail,
   Phone,
   User,
-  GraduationCap,
+  PenTool,
+  Video,
+  Palette,
+  Share2,
   Rocket,
   Loader2,
 } from "lucide-react";
@@ -42,31 +45,31 @@ const PILLARS = [
 ];
 const TRACKS = [
   {
-    title: "Tech & Product",
-    desc: "Web dev, product thinking, AI tools, and shipping real projects.",
-    icon: Rocket,
+    title: "Copywriting & Lead Generation",
+    desc: "Write copy that converts and build systems that bring in qualified leads.",
+    icon: PenTool,
   },
   {
-    title: "Business & Sales",
-    desc: "Negotiation, monetization, freelancing, and building offers.",
-    icon: TrendingUp,
+    title: "Mobile Video Editing",
+    desc: "Shoot, cut, and publish scroll-stopping videos entirely from your phone.",
+    icon: Video,
   },
   {
-    title: "Leadership",
-    desc: "Communication, influence, and leading teams with clarity.",
-    icon: Crown,
+    title: "Brand Designing",
+    desc: "Create logos, visuals, and brand identities that stand out.",
+    icon: Palette,
   },
   {
-    title: "Personal Growth",
-    desc: "Productivity, discipline, mindset, and financial intelligence.",
-    icon: GraduationCap,
+    title: "Social Media Management",
+    desc: "Grow, schedule, and monetize social accounts for brands and clients.",
+    icon: Share2,
   },
 ];
 const INTERESTS = [
-  "Tech & Product",
-  "Business & Sales",
-  "Leadership",
-  "Personal Growth",
+  "Copywriting & Lead Generation",
+  "Mobile Video Editing",
+  "Brand Designing",
+  "Social Media Management",
   "Not sure yet",
 ];
 
@@ -224,7 +227,7 @@ export default function AcademyClient() {
               What You&apos;ll <span className="text-[#c9a84c]">Master</span>
             </h2>
             <p className="text-[#7a7270] mb-8 text-sm md:text-base">
-              Four focused tracks designed to take you from curious to capable.
+              Four focused tracks — pick the one that fits you best.
             </p>
             <div className="space-y-4">
               {TRACKS.map((track, i) => (
