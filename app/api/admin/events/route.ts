@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { supabaseAdmin } from "@/lib/supabase-server";
 import { slugify } from "@/lib/events";
+import type { Speaker } from "@/types/db";
 
 export async function POST(request: NextRequest) {
   try {
@@ -8,6 +9,7 @@ export async function POST(request: NextRequest) {
     const {
       id,
       title,
+      tagline,
       description,
       category,
       starts_at,
@@ -16,6 +18,8 @@ export async function POST(request: NextRequest) {
       price,
       capacity,
       flyer_url,
+      flyers,
+      speakers_data,
       is_featured,
       whatsapp_url,
       tags,
@@ -42,6 +46,28 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    // Normalize speakers → objects
+    const normalizedSpeakers: Speaker[] = Array.isArray(speakers_data)
+      ? speakers_data
+          .filter((s: any) => s && (s.name || "").trim())
+          .map((s: any) => ({
+            name: String(s.name).trim(),
+            title: s.title ? String(s.title).trim() : "",
+            bio: s.bio ? String(s.bio).trim() : "",
+            photo: s.photo || null,
+            socials: s.socials || {},
+          }))
+      : [];
+
+    // Normalize flyers array: strings only, no empty
+    const normalizedFlyers: string[] = Array.isArray(flyers)
+      ? flyers.map((f) => String(f).trim()).filter(Boolean)
+      : flyer_url
+        ? [flyer_url]
+        : [];
+
+    const primaryFlyer = flyer_url || normalizedFlyers[0] || null;
+
     const slug = bodySlug || slugify(title);
     const finalId = id || slug;
 
@@ -52,6 +78,7 @@ export async function POST(request: NextRequest) {
           id: finalId,
           slug,
           title,
+          tagline: tagline || null,
           description: description ?? "",
           category: category ?? "Learn",
           date: startDate.toLocaleDateString("en-US", {
@@ -70,8 +97,12 @@ export async function POST(request: NextRequest) {
           venue: venue ?? "TBA",
           price: price ?? "Free",
           capacity: capacity ?? 500,
-          flyer_url: flyer_url || null,
-          image: flyer_url || null,
+          flyer_url: primaryFlyer,
+          image: primaryFlyer,
+          flyers: normalizedFlyers,
+          speakers_data: normalizedSpeakers,
+          // legacy strings for backward compat
+          speakers: normalizedSpeakers.map((s) => s.name),
           is_featured: is_featured ?? false,
           whatsapp_url: whatsapp_url || null,
           tags: Array.isArray(tags) ? tags : [],
