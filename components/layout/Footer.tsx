@@ -66,10 +66,10 @@ export default function Footer() {
               <li className="flex items-center gap-3">
                 <Mail size={16} className="text-[#c9a84c] shrink-0" />
                 <a
-                  href="mailto:nextwaveglobal509@gmail.com"
+                  href="mailto:nextwaveglobalinfo@gmail.com"
                   className="hover:text-[#c9a84c] transition break-all"
                 >
-                  nextwaveglobal509@gmail.com
+                  nextwaveglobalinfo@gmail.com
                 </a>
               </li>
               <li className="flex items-center gap-3">
