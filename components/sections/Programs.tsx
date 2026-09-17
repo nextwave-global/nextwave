@@ -8,26 +8,17 @@ import {
   Users,
   ArrowRight,
 } from "lucide-react";
-import type { DbEvent } from "@/types/db";
 import { EventCard } from "@/components/EventCard";
+import { useEvents } from "@/hooks/useEvents";
 import { computedStatus } from "@/lib/events";
 
 export default function Programs() {
   const scrollRef = useRef<HTMLDivElement>(null);
-  const [events, setEvents] = useState<DbEvent[]>([]);
-  const [loading, setLoading] = useState(true);
+  const { events, loading } = useEvents();
   const [showLeft, setShowLeft] = useState(false);
   const [showRight, setShowRight] = useState(true);
   const [isMobile, setIsMobile] = useState(false);
   const [activeIndex, setActiveIndex] = useState(0);
-
-  useEffect(() => {
-    fetch("/api/events")
-      .then((r) => r.json())
-      .then((d) => setEvents(d.events ?? []))
-      .catch(console.error)
-      .finally(() => setLoading(false));
-  }, []);
 
   useEffect(() => {
     const onResize = () => setIsMobile(window.innerWidth < 768);
@@ -75,7 +66,7 @@ export default function Programs() {
   }).length;
   const past = events.filter((e) => computedStatus(e) === "past").length;
 
-  // Show featured first
+  // Featured first, then by status (upcoming > past)
   const display = [...events].sort((a, b) => {
     if (a.is_featured && !b.is_featured) return -1;
     if (!a.is_featured && b.is_featured) return 1;
@@ -116,7 +107,7 @@ export default function Programs() {
         </div>
 
         {loading ? (
-          <div className="flex gap-4 overflow-hidden">
+          <div className="flex gap-6 overflow-hidden">
             {[0, 1, 2].map((i) => (
               <div
                 key={i}
@@ -179,7 +170,11 @@ export default function Programs() {
                   <button
                     key={i}
                     onClick={() => scrollToIndex(i)}
-                    className={`h-1.5 rounded-full transition-all touch-manipulation ${activeIndex === i ? "w-5 bg-[#c9a84c]" : "w-1.5 bg-[#333333]"}`}
+                    className={`h-1.5 rounded-full transition-all touch-manipulation ${
+                      activeIndex === i
+                        ? "w-5 bg-[#c9a84c]"
+                        : "w-1.5 bg-[#333333]"
+                    }`}
                     aria-label={`Go to event ${i + 1}`}
                   />
                 ))}
