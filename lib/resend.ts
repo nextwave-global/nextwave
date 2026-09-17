@@ -39,7 +39,7 @@ export class ResendEmailService {
 
   async sendAdminNotification(data: ResendEmailData): Promise<void> {
     const adminEmails = process.env.ADMIN_EMAILS?.split(",") || [
-      "nextwaveglobal509@gmail.com",
+      "nextwaveglobalinfo@gmail.com",
     ];
     try {
       await Promise.all(

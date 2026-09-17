@@ -188,7 +188,7 @@ export default function LibraryPage() {
               Reach out and we&apos;ll help you find the resources you need.
             </p>
             <a
-              href="mailto:nextwaveglobal509@gmail.com"
+              href="mailto:nextwaveglobalinfo@gmail.com"
               className="inline-flex items-center gap-2 px-6 py-3 bg-[#c9a84c] hover:bg-[#a8873a] text-[#0d0d0d] font-bold rounded-full transition-all touch-manipulation active:scale-95"
             >
               Contact Us

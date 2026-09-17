@@ -31,7 +31,7 @@ export default function Hero() {
             ],
             contactPoint: {
               "@type": "ContactPoint",
-              email: "nextwaveglobal509@gmail.com",
+              email: "nextwaveglobalinfo@gmail.com",
               contactType: "customer support",
             },
           }),
