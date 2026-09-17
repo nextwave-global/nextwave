@@ -100,6 +100,13 @@ export default function Hero() {
               <BookOpen className="w-5 h-5 text-[#c9a84c]" />
               Visit Our Library
             </Link>
+            <Link
+              href="#register"
+              className="inline-flex items-center justify-center gap-2 px-6 py-3 bg-transparent hover:bg-[#c9a84c]/10 text-[#c9a84c] font-semibold rounded-full border border-[#c9a84c]/40 hover:border-[#c9a84c] transition-all active:scale-95 touch-manipulation text-sm"
+            >
+              <span className="w-2 h-2 rounded-full bg-green-500 animate-pulse" />
+              Build With Break — Sept 18
+            </Link>
           </motion.div>
 
           <motion.div
