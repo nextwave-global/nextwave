@@ -1,6 +1,5 @@
 "use client";
 import { useState } from "react";
-import Image from "next/image";
 import Link from "next/link";
 import { motion } from "framer-motion";
 import {
@@ -20,6 +19,8 @@ import Footer from "@/components/layout/Footer";
 import { EventCountdown } from "@/components/ui/EventCountdown";
 import { ShareButtons } from "@/components/ui/ShareButtons";
 import { AddToCalendar } from "@/components/ui/AddToCalendar";
+import { FlyerGallery } from "@/components/ui/FlyerGallery";
+import { Speakers } from "@/components/ui/Speakers";
 import type { DbEvent } from "@/types/db";
 import {
   computedStatus,
@@ -33,8 +34,16 @@ import {
 export default function EventDetailClient({ event }: { event: DbEvent }) {
   const status = computedStatus(event);
   const regOpen = isRegistrationOpen(event);
-  const image = event.flyer_url || event.image;
   const seatsLeft = Math.max(0, event.capacity - event.registered);
+
+  // Build flyer list: use flyers gallery, fall back to single flyer_url
+  const flyers = (() => {
+    if (event.flyers && event.flyers.length > 0) return event.flyers;
+    const single = event.flyer_url || event.image;
+    return single ? [single] : [];
+  })();
+
+  const speakers = event.speakers_data ?? [];
 
   const [form, setForm] = useState({ fullName: "", email: "", phone: "" });
   const [submit, setSubmit] = useState<
@@ -79,25 +88,18 @@ export default function EventDetailClient({ event }: { event: DbEvent }) {
         </Link>
 
         <div className="grid lg:grid-cols-5 gap-8">
-          {/* Left: flyer + details */}
+          {/* Left: flyers + details */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             className="lg:col-span-3 space-y-6"
           >
-            {image && (
-              <div className="relative w-full aspect-[4/5] sm:aspect-[3/4] bg-[#1a1a1a] rounded-2xl overflow-hidden border border-[#333333]">
-                <Image
-                  src={image}
-                  alt={event.title}
-                  fill
-                  className="object-cover"
-                  sizes="(max-width: 1024px) 100vw, 60vw"
-                  priority
-                />
-                <div className="absolute top-3 left-3">
+            {flyers.length > 0 && (
+              <div className="relative">
+                <FlyerGallery images={flyers} alt={event.title} />
+                <div className="absolute top-3 left-3 z-10">
                   <span
-                    className={`inline-flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-wider px-3 py-1 rounded-full border ${statusColor(status)} backdrop-blur-sm`}
+                    className={`inline-flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-wider px-3 py-1 rounded-full border ${statusColor(status)} backdrop-blur-sm bg-black/40`}
                   >
                     {status === "live" && (
                       <Radio className="w-2.5 h-2.5 animate-pulse" />
@@ -123,13 +125,21 @@ export default function EventDetailClient({ event }: { event: DbEvent }) {
                 ))}
               </div>
 
-              <h1 className="text-3xl md:text-4xl font-bold text-white mb-3">
+              <h1 className="text-3xl md:text-4xl font-bold text-white mb-2">
                 {event.title}
               </h1>
+              {event.tagline && (
+                <p className="text-[#c9a84c] font-medium text-base mb-3">
+                  {event.tagline}
+                </p>
+              )}
               <p className="text-[#b8b0a8] leading-relaxed whitespace-pre-line">
                 {event.description}
               </p>
             </div>
+
+            {/* Speakers */}
+            {speakers.length > 0 && <Speakers speakers={speakers} />}
 
             {/* Details grid */}
             <div className="bg-[#1a1a1a] border border-[#333333] rounded-2xl p-5 grid sm:grid-cols-2 gap-4">
@@ -186,7 +196,6 @@ export default function EventDetailClient({ event }: { event: DbEvent }) {
               </div>
             </div>
 
-            {/* Countdown */}
             {event.starts_at && status === "upcoming" && (
               <div>
                 <p className="text-[10px] uppercase tracking-wider text-[#7a7270] font-semibold mb-2">
@@ -196,7 +205,6 @@ export default function EventDetailClient({ event }: { event: DbEvent }) {
               </div>
             )}
 
-            {/* Share + Calendar */}
             <div className="space-y-3">
               {status !== "past" && <AddToCalendar event={event} />}
               <div>
