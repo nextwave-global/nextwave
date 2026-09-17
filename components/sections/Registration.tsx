@@ -258,7 +258,7 @@ export default function Registration() {
                     className="w-full inline-flex items-center justify-center gap-2 px-5 py-3 bg-[#0d0d0d] hover:bg-[#2a2a2a] border border-[#333333] hover:border-[#c9a84c] text-[#c9a84c] font-semibold rounded-xl text-sm transition-all touch-manipulation active:scale-95"
                   >
                     <MessageCircle className="w-4 h-4" />
-                    Join the WhatsApp Community
+                    Join the WhatsApp Channel
                   </a>
                 )}
               </div>
