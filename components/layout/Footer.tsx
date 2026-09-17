@@ -11,6 +11,10 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 
+const ITEM_CLASS =
+  "flex items-center gap-3 text-sm text-[#7a7270] leading-tight";
+const ICON_CLASS = "w-4 h-4 text-[#c9a84c] shrink-0";
+
 export default function Footer() {
   const scrollToSection = (id: string) => {
     document.getElementById(id)?.scrollIntoView({ behavior: "smooth" });
@@ -19,7 +23,6 @@ export default function Footer() {
   return (
     <footer className="bg-[#0d0d0d] border-t border-[#333333] pt-10 sm:pt-12 pb-6 px-4 sm:px-6 overflow-hidden">
       <div className="max-w-7xl mx-auto w-full">
-        {/* Top grid: stacks on mobile, 2 cols from md */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8 md:gap-12 mb-10 md:mb-12">
           {/* Brand block */}
           <div className="text-left">
@@ -68,46 +71,34 @@ export default function Footer() {
             <h4 className="font-bold mb-4 text-xs uppercase tracking-widest text-[#c9a84c]">
               Connect With Us
             </h4>
-            <ul className="space-y-3 text-[#7a7270] text-sm font-medium">
+            <ul className="space-y-2.5">
               <li>
                 <a
                   href="mailto:nextwaveglobalinfo@gmail.com"
-                  className="flex items-start gap-3 hover:text-[#c9a84c] transition group"
+                  className={`${ITEM_CLASS} hover:text-[#c9a84c] transition group`}
                 >
-                  <Mail
-                    size={16}
-                    className="text-[#c9a84c] shrink-0 mt-0.5"
-                  />
+                  <Mail className={ICON_CLASS} />
                   <span className="break-all group-hover:text-[#c9a84c]">
                     nextwaveglobalinfo@gmail.com
                   </span>
                 </a>
               </li>
-              <li className="flex items-start gap-3">
-                <MapPin
-                  size={16}
-                  className="text-[#c9a84c] shrink-0 mt-0.5"
-                />
+              <li className={ITEM_CLASS}>
+                <MapPin className={ICON_CLASS} />
                 <span>Virtual &amp; Physical Events</span>
               </li>
-              <li className="flex items-start gap-3">
-                <Sparkles
-                  size={16}
-                  className="text-[#c9a84c] shrink-0 mt-0.5"
-                />
-                <span className="text-[#c9a84c] font-bold italic text-base leading-tight">
+              <li className={ITEM_CLASS}>
+                <Sparkles className={ICON_CLASS} />
+                <span className="text-[#c9a84c] font-bold italic text-[15px]">
                   Learn. Earn. Lead.
                 </span>
               </li>
               <li>
                 <Link
                   href="/academy"
-                  className="flex items-start gap-3 hover:text-[#c9a84c] transition group"
+                  className={`${ITEM_CLASS} hover:text-[#c9a84c] transition group`}
                 >
-                  <GraduationCap
-                    size={16}
-                    className="text-[#c9a84c] shrink-0 mt-0.5"
-                  />
+                  <GraduationCap className={ICON_CLASS} />
                   <span className="group-hover:text-[#c9a84c]">
                     Join the Academy Waitlist
                   </span>
@@ -116,12 +107,9 @@ export default function Footer() {
               <li>
                 <Link
                   href="/library"
-                  className="flex items-start gap-3 hover:text-[#c9a84c] transition group"
+                  className={`${ITEM_CLASS} hover:text-[#c9a84c] transition group`}
                 >
-                  <BookOpen
-                    size={16}
-                    className="text-[#c9a84c] shrink-0 mt-0.5"
-                  />
+                  <BookOpen className={ICON_CLASS} />
                   <span className="group-hover:text-[#c9a84c]">
                     Visit Our Library
                   </span>
