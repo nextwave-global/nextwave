@@ -24,31 +24,37 @@ export async function POST(request: NextRequest) {
       request.headers.get("x-forwarded-for")?.split(",")[0]?.trim() ||
       request.headers.get("x-real-ip") ||
       "unknown";
-    if (!checkRateLimit(ip))
+
+    if (!checkRateLimit(ip)) {
       return NextResponse.json(
         { error: "Too many requests. Please try again later." },
         { status: 429 },
       );
+    }
 
     const { fullName, email, phone, interest } = await request.json();
-    if (!fullName || !email || !phone)
+
+    if (!fullName || !email || !phone) {
       return NextResponse.json(
         { error: "Name, email, and WhatsApp number are required." },
         { status: 400 },
       );
+    }
 
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!emailRegex.test(email))
+    if (!emailRegex.test(email)) {
       return NextResponse.json(
         { error: "Please enter a valid email address." },
         { status: 400 },
       );
+    }
 
-    if (String(phone).replace(/\D/g, "").length < 7)
+    if (String(phone).replace(/\D/g, "").length < 7) {
       return NextResponse.json(
         { error: "Please enter a valid WhatsApp number with country code." },
         { status: 400 },
       );
+    }
 
     const cleanEmail = String(email).trim().toLowerCase();
     const cleanName = String(fullName).trim();
@@ -60,11 +66,13 @@ export async function POST(request: NextRequest) {
       .select("id")
       .eq("email", cleanEmail)
       .maybeSingle();
-    if (existing)
+
+    if (existing) {
       return NextResponse.json({
         success: true,
         message: "You're already on the waitlist! We'll be in touch soon. 🎉",
       });
+    }
 
     const { data: entry, error } = await supabaseAdmin
       .from("academy_waitlist")
@@ -76,17 +84,16 @@ export async function POST(request: NextRequest) {
       })
       .select()
       .single();
+
     if (error) throw error;
 
     try {
       const emailService = getEmailService();
-      await emailService.sendConfirmationEmail({
+      await emailService.sendAcademyWaitlistEmail({
         email: cleanEmail,
         fullName: cleanName,
-        eventTitle: "NextWave Academy Waitlist",
-        eventDate: "Launching soon",
-        eventVenue: "Online",
         phone: cleanPhone,
+        interest: cleanInterest,
       });
     } catch (err) {
       console.error("⚠️ Academy waitlist email failed:", err);
