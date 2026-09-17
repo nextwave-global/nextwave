@@ -1,4 +1,5 @@
 "use client";
+import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import Link from "next/link";
 import { ArrowRight, Sparkles, BookOpen, GraduationCap } from "lucide-react";
@@ -13,6 +14,27 @@ const container = {
 const item = { hidden: { opacity: 0, y: 30 }, show: { opacity: 1, y: 0 } };
 
 export default function Hero() {
+  const [featured, setFeatured] = useState<{
+    title: string;
+    date: string;
+    slug: string;
+  } | null>(null);
+
+  useEffect(() => {
+    fetch("/api/events")
+      .then((r) => r.json())
+      .then((d) => {
+        const events = d.events ?? [];
+        const f =
+          events.find((e: any) => e.is_featured) ??
+          events.find((e: any) =>
+            ["upcoming", "live"].includes(e.computed_status),
+          );
+        if (f) setFeatured({ title: f.title, date: f.date, slug: f.slug });
+      })
+      .catch(() => {});
+  }, []);
+
   return (
     <>
       <script
@@ -31,7 +53,7 @@ export default function Hero() {
             ],
             contactPoint: {
               "@type": "ContactPoint",
-              email: "nextwaveglobal509@gmail.com",
+              email: "nextwaveglobalinfo@gmail.com",
               contactType: "customer support",
             },
           }),
@@ -84,7 +106,7 @@ export default function Hero() {
 
           <motion.div
             variants={item}
-            className="flex flex-col sm:flex-row gap-4 justify-center items-center"
+            className="flex flex-col sm:flex-row gap-4 justify-center items-center flex-wrap"
           >
             <Link
               href="/academy"
@@ -100,14 +122,21 @@ export default function Hero() {
               <BookOpen className="w-5 h-5 text-[#c9a84c]" />
               Visit Our Library
             </Link>
-            <Link
-              href="#register"
-              className="inline-flex items-center justify-center gap-2 px-6 py-3 bg-transparent hover:bg-[#c9a84c]/10 text-[#c9a84c] font-semibold rounded-full border border-[#c9a84c]/40 hover:border-[#c9a84c] transition-all active:scale-95 touch-manipulation text-sm"
-            >
-              <span className="w-2 h-2 rounded-full bg-green-500 animate-pulse" />
-              Build With Break — Sept 18
-            </Link>
           </motion.div>
+          {featured && (
+            <motion.div variants={item} className="mt-6">
+              <Link
+                href={`/events/${featured.slug}`}
+                className="inline-flex items-center gap-3 px-6 py-3 bg-transparent hover:bg-[#c9a84c]/10 text-[#c9a84c] font-semibold rounded-full border border-[#c9a84c]/40 hover:border-[#c9a84c] transition-all active:scale-95 touch-manipulation text-sm group"
+              >
+                <span className="w-2 h-2 rounded-full bg-green-500 animate-pulse" />
+                <span className="line-clamp-1">
+                  {featured.title} — {featured.date}
+                </span>
+                <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+              </Link>
+            </motion.div>
+          )}
 
           <motion.div
             variants={item}

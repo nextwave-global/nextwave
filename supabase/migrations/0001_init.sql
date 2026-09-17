@@ -105,7 +105,7 @@ values
    'Upcoming', '/events/leadership.jpg', 500, 0)
    (
   'build-with-break', 'Build With Break 1.0',
-  'Exams are over — but time is your most valuable asset. Learn how to use your break to build skills, not just level up in games.',
+  'Exams are over - but time is your most valuable asset. Learn how to use your break to build skills, not just level up in games.',
   'Earn', 'September 18, 2026', '7:00 PM WAT', 'Virtual (WhatsApp Community)', 'Free',
   '[]'::jsonb, 'Upcoming', '/events/build-with-break.jpg', 500, 0
 )
