@@ -13,7 +13,7 @@ export const UPCOMING_EVENTS: Event[] = [
     price: "Free",
     speakers: [],
     status: "Upcoming",
-    image: "/events/build-with-break.jpg",
+    image: "/events/build_with_break.jpg",
   },
 ];
 
