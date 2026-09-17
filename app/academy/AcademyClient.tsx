@@ -227,7 +227,7 @@ export default function AcademyClient() {
               What You&apos;ll <span className="text-[#c9a84c]">Master</span>
             </h2>
             <p className="text-[#7a7270] mb-8 text-sm md:text-base">
-              Four focused tracks — pick the one that fits you best.
+              Four focused tracks. Pick the one that fits you best.
             </p>
             <div className="space-y-4">
               {TRACKS.map((track, i) => (
