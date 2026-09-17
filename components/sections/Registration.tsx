@@ -329,7 +329,8 @@ export default function Registration() {
                   Reserve Your Spot
                 </h3>
                 <p className="text-sm text-[#7a7270] mb-6">
-                  It&apos;s {event.price.toLowerCase()}. It takes 20 seconds.
+                  It&apos;s {event.price.toLowerCase()}. It takes less than a
+                  minute.
                 </p>
 
                 <form onSubmit={onSubmit} className="space-y-4">
