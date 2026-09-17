@@ -1,6 +1,6 @@
 import Image from "next/image";
 import Link from "next/link";
-import { Calendar, Clock, MapPin, ArrowRight, Radio } from "lucide-react";
+import { Calendar, Clock, MapPin, ArrowRight, Radio, Users } from "lucide-react";
 import type { DbEvent } from "@/types/db";
 import {
   computedStatus,
@@ -22,6 +22,7 @@ export function EventCard({ event, variant = "default" }: Props) {
   const isLive = status === "live";
   const registrationOpen = isRegistrationOpen(event);
   const image = event.flyer_url || event.image;
+  const speakerCount = event.speakers_data?.length ?? 0;
 
   return (
     <Link
@@ -68,17 +69,35 @@ export function EventCard({ event, variant = "default" }: Props) {
           </span>
         </div>
 
-        <div className="absolute bottom-3 left-3">
+        <div className="absolute bottom-3 left-3 flex items-center gap-2">
           <span className="bg-[#c9a84c] text-[#0d0d0d] text-[10px] font-bold px-2.5 py-1 rounded-full uppercase tracking-wider">
             {event.price}
           </span>
+          {speakerCount > 0 && (
+            <span className="inline-flex items-center gap-1 bg-black/60 backdrop-blur-sm text-white text-[10px] font-bold px-2.5 py-1 rounded-full">
+              <Users className="w-2.5 h-2.5" />
+              {speakerCount}
+            </span>
+          )}
         </div>
+
+        {/* Multi-flyer indicator */}
+        {event.flyers && event.flyers.length > 1 && (
+          <div className="absolute bottom-3 right-3 bg-black/60 backdrop-blur-sm text-white text-[10px] font-bold px-2.5 py-1 rounded-full">
+            {event.flyers.length} flyers
+          </div>
+        )}
       </div>
 
       <div className="p-5 flex flex-col flex-1">
         <h3 className="text-white font-bold text-lg mb-2 group-hover:text-[#c9a84c] transition-colors line-clamp-2">
           {event.title}
         </h3>
+        {event.tagline && (
+          <p className="text-[#c9a84c] text-xs font-medium mb-2 line-clamp-1">
+            {event.tagline}
+          </p>
+        )}
         <p className="text-[#7a7270] text-sm leading-relaxed mb-4 line-clamp-2 flex-1">
           {event.description}
         </p>
