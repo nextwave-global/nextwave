@@ -109,7 +109,7 @@ export default function Footer() {
             © {new Date().getFullYear()} Nextwave Global. All Rights Reserved.
           </p>
           <div className="flex items-center gap-4 sm:gap-6 flex-wrap justify-center">
-            <button
+            {/* <button
               onClick={() => scrollToSection("about")}
               className="hover:text-[#c9a84c] transition touch-manipulation"
             >
@@ -120,8 +120,8 @@ export default function Footer() {
               className="hover:text-[#c9a84c] transition touch-manipulation"
             >
               Programs
-            </button>
-            <Link
+            </button> */}
+            {/* <Link
               href="/academy"
               className="hover:text-[#c9a84c] transition touch-manipulation"
             >
@@ -132,7 +132,7 @@ export default function Footer() {
               className="hover:text-[#c9a84c] transition touch-manipulation"
             >
               Library
-            </Link>
+            </Link> */}
             <button
               onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
               className="p-2 bg-[#1a1a1a] hover:bg-[#c9a84c] rounded-full transition-colors touch-manipulation"
