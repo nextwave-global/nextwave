@@ -156,21 +156,48 @@ export function statusColor(status: EventStatus): string {
   }
 }
 
+/**
+ * Sort priority:
+ *   1. FEATURED upcoming/live events (pinned first)
+ *   2. Other live
+ *   3. Other upcoming (soonest first)
+ *   4. Draft
+ *   5. Cancelled
+ *   6. Past (most recent first)
+ *
+ * Featured only pins if the event is actually upcoming or live.
+ * A featured PAST event sorts with other past events.
+ */
 export function sortEvents(events: DbEvent[]): DbEvent[] {
-  const order: Record<EventStatus, number> = {
+  const priority: Record<EventStatus, number> = {
     live: 0,
     upcoming: 1,
     draft: 2,
     cancelled: 3,
     past: 4,
   };
+
   return [...events].sort((a, b) => {
     const sa = computedStatus(a);
     const sb = computedStatus(b);
-    if (order[sa] !== order[sb]) return order[sa] - order[sb];
+
+    // Featured upcoming/live events float to top
+    const aIsActive = sa === "live" || sa === "upcoming";
+    const bIsActive = sb === "live" || sb === "upcoming";
+    const aFeatured = a.is_featured && aIsActive;
+    const bFeatured = b.is_featured && bIsActive;
+
+    if (aFeatured && !bFeatured) return -1;
+    if (!aFeatured && bFeatured) return 1;
+
+    // Then by status priority
+    if (priority[sa] !== priority[sb]) return priority[sa] - priority[sb];
+
     // Within same status: upcoming ascending, past descending
     const da = a.starts_at ? new Date(a.starts_at).getTime() : 0;
     const db = b.starts_at ? new Date(b.starts_at).getTime() : 0;
-    return sa === "past" ? db - da : da - db;
+
+    if (sa === "past") return db - da; // most recent past first
+    return da - db; // soonest upcoming first
   });
 }
