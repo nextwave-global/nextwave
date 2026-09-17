@@ -273,7 +273,7 @@ export default function EventDetailClient({ event }: { event: DbEvent }) {
                     Register Now
                   </h3>
                   <p className="text-sm text-[#7a7270] mb-6">
-                    Free and takes 20 seconds.
+                    Free and takes less than a minute.
                   </p>
                   <form onSubmit={onSubmit} className="space-y-4">
                     <div>
