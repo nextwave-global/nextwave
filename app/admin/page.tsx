@@ -1,5 +1,6 @@
 "use client";
 import { useState, useEffect } from "react";
+import Link from "next/link";
 import {
   Search,
   Download,
@@ -172,7 +173,7 @@ export default function AdminDashboard() {
                 : `${waitlist.length} on academy waitlist`}
             </p>
           </div>
-          <div className="flex gap-3">
+          <div className="flex flex-wrap gap-3">
             <button
               onClick={exportCSV}
               className="flex items-center gap-2 px-4 py-2 bg-[#c9a84c] text-[#0d0d0d] rounded-lg hover:bg-[#a8873a] transition font-semibold"
@@ -180,6 +181,12 @@ export default function AdminDashboard() {
               <Download size={18} />
               Export CSV
             </button>
+            <Link
+              href="/admin/events"
+              className="flex items-center gap-2 px-4 py-2 bg-[#1a1a1a] text-[#b8b0a8] border border-[#333333] rounded-lg hover:border-[#c9a84c] hover:text-[#c9a84c] transition"
+            >
+              Manage Events
+            </Link>
             <button
               onClick={handleLogout}
               className="flex items-center gap-2 px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition"
