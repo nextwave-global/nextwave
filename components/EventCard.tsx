@@ -1,4 +1,3 @@
-"use client";
 import Image from "next/image";
 import Link from "next/link";
 import { Calendar, Clock, MapPin, ArrowRight, Radio } from "lucide-react";
@@ -22,7 +21,6 @@ export function EventCard({ event, variant = "default" }: Props) {
   const isPast = status === "past";
   const isLive = status === "live";
   const registrationOpen = isRegistrationOpen(event);
-
   const image = event.flyer_url || event.image;
 
   return (
@@ -34,9 +32,10 @@ export function EventCard({ event, variant = "default" }: Props) {
           : "hover:border-[#c9a84c]/50 hover:shadow-2xl hover:shadow-[#c9a84c]/10 hover:-translate-y-1"
       }`}
     >
-      {/* Image */}
       <div
-        className={`relative w-full overflow-hidden bg-[#0d0d0d] ${variant === "compact" ? "h-40" : "aspect-[4/3]"}`}
+        className={`relative w-full overflow-hidden bg-[#0d0d0d] ${
+          variant === "compact" ? "h-40" : "aspect-[4/3]"
+        }`}
       >
         {image ? (
           <Image
@@ -54,7 +53,6 @@ export function EventCard({ event, variant = "default" }: Props) {
 
         <div className="absolute inset-0 bg-gradient-to-t from-[#0d0d0d]/90 via-[#0d0d0d]/20 to-transparent" />
 
-        {/* Status badge */}
         <div className="absolute top-3 left-3">
           <span
             className={`inline-flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-wider px-2.5 py-1 rounded-full border ${statusColor(status)} backdrop-blur-sm`}
@@ -64,14 +62,12 @@ export function EventCard({ event, variant = "default" }: Props) {
           </span>
         </div>
 
-        {/* Category */}
         <div className="absolute top-3 right-3">
           <span className="bg-black/60 backdrop-blur-sm text-white text-[10px] font-bold px-2.5 py-1 rounded-full uppercase tracking-wider">
             {event.category}
           </span>
         </div>
 
-        {/* Price */}
         <div className="absolute bottom-3 left-3">
           <span className="bg-[#c9a84c] text-[#0d0d0d] text-[10px] font-bold px-2.5 py-1 rounded-full uppercase tracking-wider">
             {event.price}
@@ -79,7 +75,6 @@ export function EventCard({ event, variant = "default" }: Props) {
         </div>
       </div>
 
-      {/* Content */}
       <div className="p-5 flex flex-col flex-1">
         <h3 className="text-white font-bold text-lg mb-2 group-hover:text-[#c9a84c] transition-colors line-clamp-2">
           {event.title}
@@ -111,7 +106,6 @@ export function EventCard({ event, variant = "default" }: Props) {
           </div>
         </div>
 
-        {/* CTA */}
         <div className="mt-4 pt-3 border-t border-[#333333]">
           {isPast ? (
             <span className="inline-flex items-center gap-1.5 text-[#7a7270] text-xs font-semibold">
