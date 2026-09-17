@@ -1,6 +1,5 @@
 "use client";
 import { useEffect, useState } from "react";
-import Image from "next/image";
 import { motion } from "framer-motion";
 import Link from "next/link";
 import {
@@ -27,6 +26,8 @@ import {
 } from "@/lib/events";
 import { EventCountdown } from "@/components/ui/EventCountdown";
 import { AddToCalendar } from "@/components/ui/AddToCalendar";
+import { FlyerGallery } from "@/components/ui/FlyerGallery";
+import { Speakers } from "@/components/ui/Speakers";
 
 export default function Registration() {
   const [event, setEvent] = useState<DbEvent | null>(null);
@@ -119,8 +120,12 @@ export default function Registration() {
 
   const eStatus = computedStatus(event);
   const regOpen = isRegistrationOpen(event);
-  const image = event.flyer_url || event.image;
   const seatsLeft = Math.max(0, event.capacity - event.registered);
+  const flyers = (() => {
+    if (event.flyers && event.flyers.length > 0) return event.flyers;
+    const single = event.flyer_url || event.image;
+    return single ? [single] : [];
+  })();
 
   return (
     <section
@@ -143,9 +148,7 @@ export default function Registration() {
             ) : (
               <Sparkles size={14} />
             )}
-            <span>
-              {eStatus === "live" ? "Live Now" : "Featured Event"}
-            </span>
+            <span>{eStatus === "live" ? "Live Now" : "Featured Event"}</span>
           </div>
           <h2 className="text-3xl md:text-5xl font-bold mb-3 text-white">
             {eStatus === "live" ? "Join" : "Register"}{" "}
@@ -157,7 +160,6 @@ export default function Registration() {
         </motion.div>
 
         <div className="grid lg:grid-cols-2 gap-8 lg:gap-12 items-start">
-          {/* Left: flyer + details */}
           <motion.div
             initial={{ opacity: 0, x: -20 }}
             whileInView={{ opacity: 1, x: 0 }}
@@ -165,19 +167,12 @@ export default function Registration() {
             transition={{ duration: 0.5 }}
             className="bg-[#1a1a1a] rounded-2xl border border-[#333333] overflow-hidden hover:border-[#c9a84c]/50 transition-all"
           >
-            {image && (
-              <div className="relative w-full aspect-[4/5] sm:aspect-[3/4] bg-[#0d0d0d]">
-                <Image
-                  src={image}
-                  alt={event.title}
-                  fill
-                  className="object-cover"
-                  sizes="(max-width: 1024px) 100vw, 50vw"
-                  priority
-                />
-                <div className="absolute top-3 left-3">
+            {flyers.length > 0 && (
+              <div className="relative p-4 bg-[#0d0d0d]">
+                <FlyerGallery images={flyers} alt={event.title} />
+                <div className="absolute top-7 left-7 z-10">
                   <span
-                    className={`inline-flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-wider px-3 py-1 rounded-full border ${statusColor(eStatus)} backdrop-blur-sm`}
+                    className={`inline-flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-wider px-3 py-1 rounded-full border ${statusColor(eStatus)} backdrop-blur-sm bg-black/40`}
                   >
                     {eStatus === "live" && (
                       <Radio className="w-2.5 h-2.5 animate-pulse" />
@@ -185,7 +180,7 @@ export default function Registration() {
                     {statusLabel(eStatus)}
                   </span>
                 </div>
-                <div className="absolute top-3 right-3 bg-[#c9a84c] text-[#0d0d0d] text-[10px] font-bold px-3 py-1 rounded-full uppercase tracking-wider">
+                <div className="absolute top-7 right-7 z-10 bg-[#c9a84c] text-[#0d0d0d] text-[10px] font-bold px-3 py-1 rounded-full uppercase tracking-wider">
                   {event.price}
                 </div>
               </div>
@@ -195,9 +190,20 @@ export default function Registration() {
               <h3 className="text-xl md:text-2xl font-bold text-white mb-2">
                 {event.title}
               </h3>
+              {event.tagline && (
+                <p className="text-[#c9a84c] text-sm font-medium mb-3">
+                  {event.tagline}
+                </p>
+              )}
               <p className="text-[#b8b0a8] text-sm leading-relaxed mb-5 whitespace-pre-line">
                 {event.description}
               </p>
+
+              {event.speakers_data && event.speakers_data.length > 0 && (
+                <div className="mb-5">
+                  <Speakers speakers={event.speakers_data} />
+                </div>
+              )}
 
               <div className="space-y-2.5 text-sm border-t border-[#333333] pt-4">
                 <div className="flex items-center gap-3 text-[#b8b0a8]">
@@ -259,7 +265,6 @@ export default function Registration() {
             </div>
           </motion.div>
 
-          {/* Right: form */}
           <motion.div
             initial={{ opacity: 0, x: 20 }}
             whileInView={{ opacity: 1, x: 0 }}
