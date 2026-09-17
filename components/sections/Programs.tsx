@@ -1,16 +1,10 @@
 "use client";
 import Image from "next/image";
 import { PROGRAMS } from "@/data/programs";
-import { StatusBadge } from "@/components/ui/StatusBadge";
 import { CalendarIcon, ClockIcon, LocationIcon } from "@/components/ui/Icons";
 import { useRef, useState, useEffect } from "react";
-import {
-  ChevronLeft,
-  ChevronRight,
-  Sparkles,
-  Users,
-  CheckCircle,
-} from "lucide-react";
+import { ChevronLeft, ChevronRight, Sparkles, CheckCircle } from "lucide-react";
+import { UPCOMING_EVENTS } from "@/data/events";
 
 export default function Programs() {
   const scrollContainerRef = useRef<HTMLDivElement>(null);
@@ -63,7 +57,10 @@ export default function Programs() {
     c.scrollTo({ left: i * (cardWidth + 16), behavior: "smooth" });
   };
 
-  const allPrograms = PROGRAMS.map((p) => ({ ...p, status: "Past" as const }));
+  const allPrograms = [
+    ...UPCOMING_EVENTS.map((p) => ({ ...p, status: "Upcoming" as const })),
+    ...PROGRAMS.map((p) => ({ ...p, status: "Past" as const })),
+  ];
 
   return (
     <section
@@ -75,28 +72,27 @@ export default function Programs() {
         <div className="text-center mb-8 md:mb-12">
           <div className="inline-flex items-center gap-2 text-[#c9a84c] text-xs font-bold uppercase tracking-widest bg-[#c9a84c]/10 px-4 py-2 rounded-full mb-4 border border-[#c9a84c]/20">
             <Sparkles className="w-4 h-4" />
-            <span>Past Programs</span>
+            <span>Events & Programs</span>
           </div>
           <h2 className="text-3xl md:text-5xl font-bold mt-2 text-white">
-            Completed <span className="text-[#c9a84c]">Programs</span>
+            What&apos;s <span className="text-[#c9a84c]">Next</span> and{" "}
+            <span className="text-[#c9a84c]">Past</span>
           </h2>
           <p className="text-[#7a7270] mt-3 max-w-2xl mx-auto text-sm md:text-base">
-            Explore our past initiatives that helped students learn, earn, and
-            lead.
+            Register for upcoming events, or explore our completed initiatives.
           </p>
           <div className="flex items-center justify-center gap-4 mt-4 flex-wrap">
             <div className="flex items-center gap-2 text-[#7a7270] text-xs">
-              <div className="w-2 h-2 rounded-full bg-[#333333]" />
-              <span>{allPrograms.length} Programs</span>
+              <div className="w-2 h-2 rounded-full bg-green-500 animate-pulse" />
+              <span>{UPCOMING_EVENTS.length} Upcoming</span>
             </div>
             <div className="w-px h-4 bg-[#333333]" />
             <div className="flex items-center gap-2 text-[#7a7270] text-xs">
-              <Users className="w-3.5 h-3.5 text-[#c9a84c]" />
-              <span>Virtual & Physical</span>
+              <div className="w-2 h-2 rounded-full bg-[#333333]" />
+              <span>{PROGRAMS.length} Completed</span>
             </div>
           </div>
         </div>
-
         <div className="relative">
           {!isMobile && showLeftArrow && (
             <button
@@ -148,17 +144,23 @@ export default function Programs() {
                       📚
                     </div>
                   )}
-                  <div className="absolute bottom-3 left-3 right-3 flex items-center justify-between">
+                  <div className="absolute bottom-3 left-3">
                     <span className="text-xs font-bold text-[#c9a84c] bg-black/40 backdrop-blur-sm px-2.5 py-0.5 rounded-full">
                       #{index + 1}
                     </span>
-                    <StatusBadge status="Past" />
                   </div>
                   <div className="absolute top-3 right-3">
-                    <span className="bg-[#2a2a2a] text-[#7a7270] text-[10px] font-bold px-2.5 py-1 rounded-full flex items-center gap-1 border border-[#333333]">
-                      <CheckCircle className="w-2.5 h-2.5" />
-                      Completed
-                    </span>
+                    {item.status === "Upcoming" ? (
+                      <span className="bg-green-500 text-[#0d0d0d] text-[10px] font-bold px-2.5 py-1 rounded-full flex items-center gap-1">
+                        <span className="w-1.5 h-1.5 rounded-full bg-[#0d0d0d] animate-pulse" />
+                        Upcoming
+                      </span>
+                    ) : (
+                      <span className="bg-[#2a2a2a] text-[#7a7270] text-[10px] font-bold px-2.5 py-1 rounded-full flex items-center gap-1 border border-[#333333]">
+                        <CheckCircle className="w-2.5 h-2.5" />
+                        Completed
+                      </span>
+                    )}
                   </div>
                 </div>
                 <div className="p-4">
@@ -166,7 +168,8 @@ export default function Programs() {
                     {item.title}
                   </h4>
                   <p className="text-[#7a7270] text-xs leading-relaxed mb-3 line-clamp-2">
-                    {item.desc || "An initiative that helped students grow."}
+                    {item.description ||
+                      "An initiative that helped students grow."}
                   </p>
                   <div className="space-y-1.5 text-xs border-t border-[#333333] pt-3">
                     <div className="flex items-center gap-2 text-[#b8b0a8]">
@@ -182,10 +185,20 @@ export default function Programs() {
                       <span className="truncate">{item.venue}</span>
                     </div>
                   </div>
-                  <div className="w-full mt-3 py-2.5 bg-[#2a2a2a] text-[#7a7270] rounded-lg font-semibold text-xs flex items-center justify-center gap-2 cursor-not-allowed">
-                    <CheckCircle className="w-3.5 h-3.5" />
-                    Program Completed
-                  </div>
+                  {item.status === "Upcoming" ? (
+                    <a
+                      href="#register"
+                      className="w-full mt-3 py-2.5 bg-[#c9a84c] hover:bg-[#a8873a] text-[#0d0d0d] rounded-lg font-semibold text-xs flex items-center justify-center gap-2 transition-all touch-manipulation active:scale-95"
+                    >
+                      <Sparkles className="w-3.5 h-3.5" />
+                      Register Now
+                    </a>
+                  ) : (
+                    <div className="w-full mt-3 py-2.5 bg-[#2a2a2a] text-[#7a7270] rounded-lg font-semibold text-xs flex items-center justify-center gap-2 cursor-not-allowed">
+                      <CheckCircle className="w-3.5 h-3.5" />
+                      Program Completed
+                    </div>
+                  )}
                 </div>
               </div>
             ))}
