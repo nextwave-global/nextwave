@@ -6,7 +6,6 @@ import Story from "@/components/sections/Story";
 import Pillars from "@/components/sections/Pillars";
 import Programs from "@/components/sections/Programs";
 import Registration from "@/components/sections/Registration";
-import Testimonials from "@/components/sections/Testimonials";
 import Footer from "@/components/layout/Footer";
 import { EventPopup } from "@/components/ui/EventPopup";
 
@@ -19,7 +18,6 @@ export default function Home() {
       <Pillars />
       <Programs />
       <Registration />
-      <Testimonials />
       <Footer />
       <EventPopup />
     </main>
