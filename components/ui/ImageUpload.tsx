@@ -7,6 +7,8 @@ import { Upload, X, Loader2, Link as LinkIcon } from "lucide-react";
 interface Props {
   value: string;
   onChange: (url: string) => void;
+  onUploaded?: (path: string) => void;
+  onRemoved?: (path: string) => void;
   folder?: string;
   label?: string;
   placeholder?: string;
@@ -16,6 +18,8 @@ interface Props {
 export function ImageUpload({
   value,
   onChange,
+  onUploaded,
+  onRemoved,
   folder = "uploads",
   label,
   placeholder = "/events/flyer.jpg",
@@ -25,6 +29,7 @@ export function ImageUpload({
   const [uploading, setUploading] = useState(false);
   const [error, setError] = useState("");
   const [showUrl, setShowUrl] = useState(false);
+  const [uploadedPath, setUploadedPath] = useState<string | null>(null);
 
   const aspectClass =
     aspect === "square"
@@ -56,17 +61,23 @@ export function ImageUpload({
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || "Upload failed");
 
+      setUploadedPath(data.path);
       onChange(data.url);
+      onUploaded?.(data.path);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Upload failed");
     } finally {
       setUploading(false);
-      // Reset input so picking the same file again works
       if (inputRef.current) inputRef.current.value = "";
     }
   };
 
-  const handleRemove = () => {
+  const handleRemove = async () => {
+    // If this was a fresh upload in this session, tell the parent so it can clean up
+    if (uploadedPath) {
+      onRemoved?.(uploadedPath);
+      setUploadedPath(null);
+    }
     onChange("");
   };
 
@@ -144,11 +155,8 @@ export function ImageUpload({
         </button>
       )}
 
-      {error && (
-        <p className="text-[10px] text-red-400 mt-1.5">{error}</p>
-      )}
+      {error && <p className="text-[10px] text-red-400 mt-1.5">{error}</p>}
 
-      {/* Manual URL toggle — small, tucked away */}
       <button
         type="button"
         onClick={() => setShowUrl(!showUrl)}
