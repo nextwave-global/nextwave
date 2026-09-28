@@ -9,11 +9,10 @@ import {
   Loader2,
   Pencil,
   X,
-  User,
-  Image as ImageIcon,
 } from "lucide-react";
 import type { DbEvent, Speaker } from "@/types/db";
 import { computedStatus, statusLabel, statusColor, slugify } from "@/lib/events";
+import { ImageUpload } from "@/components/ui/ImageUpload";
 
 function toLocalInput(iso: string | null): string {
   if (!iso) return "";
@@ -79,9 +78,9 @@ export default function AdminEventsPage() {
   };
 
   return (
-    <div className="min-h-screen bg-[#0d0d0d] p-6">
+    <div className="min-h-screen bg-[#0d0d0d] p-4 sm:p-6">
       <div className="max-w-7xl mx-auto">
-        <div className="flex flex-wrap justify-between items-start gap-4 mb-8">
+        <div className="flex flex-wrap justify-between items-start gap-4 mb-6">
           <div>
             <Link
               href="/admin"
@@ -89,22 +88,24 @@ export default function AdminEventsPage() {
             >
               ← Back to dashboard
             </Link>
-            <h1 className="text-3xl font-bold text-white mt-1">Events</h1>
-            <p className="text-[#7a7270] mt-1">
+            <h1 className="text-2xl sm:text-3xl font-bold text-white mt-1">
+              Events
+            </h1>
+            <p className="text-[#7a7270] mt-1 text-sm">
               Status auto-updates based on date &amp; time.
             </p>
           </div>
           <button
             onClick={showForm ? closeForm : openNew}
-            className="flex items-center gap-2 px-4 py-2 bg-[#c9a84c] hover:bg-[#a8873a] text-[#0d0d0d] rounded-lg font-semibold"
+            className="flex items-center gap-2 px-4 py-2 bg-[#c9a84c] hover:bg-[#a8873a] text-[#0d0d0d] rounded-lg font-semibold text-sm"
           >
             {showForm ? (
               <>
-                <X size={18} /> Close
+                <X size={16} /> Close
               </>
             ) : (
               <>
-                <Plus size={18} /> Add Event
+                <Plus size={16} /> Add Event
               </>
             )}
           </button>
@@ -116,23 +117,22 @@ export default function AdminEventsPage() {
 
         <div className="bg-[#1a1a1a] rounded-xl border border-[#333333] overflow-hidden mt-6">
           <div className="overflow-x-auto">
-            <table className="w-full">
+            <table className="w-full min-w-[700px]">
               <thead className="bg-[#0d0d0d] border-b border-[#333333]">
                 <tr>
                   {[
                     "Title",
-                    "Category",
                     "Starts",
                     "Status",
-                    "Featured",
-                    "Speakers",
-                    "Flyers",
-                    "Registered",
+                    "★",
+                    "👥",
+                    "🖼",
+                    "Reg.",
                     "Actions",
                   ].map((h) => (
                     <th
                       key={h}
-                      className="px-6 py-3 text-left text-xs font-medium text-[#7a7270] uppercase tracking-wider"
+                      className="px-4 py-3 text-left text-xs font-medium text-[#7a7270] uppercase tracking-wider"
                     >
                       {h}
                     </th>
@@ -142,18 +142,15 @@ export default function AdminEventsPage() {
               <tbody className="divide-y divide-[#333333]">
                 {loading ? (
                   <tr>
-                    <td
-                      colSpan={9}
-                      className="px-6 py-8 text-center text-[#7a7270]"
-                    >
-                      <Loader2 className="w-5 h-5 animate-spin mx-auto" />
+                    <td colSpan={8} className="px-4 py-8 text-center">
+                      <Loader2 className="w-5 h-5 animate-spin mx-auto text-[#c9a84c]" />
                     </td>
                   </tr>
                 ) : events.length === 0 ? (
                   <tr>
                     <td
-                      colSpan={9}
-                      className="px-6 py-8 text-center text-[#7a7270]"
+                      colSpan={8}
+                      className="px-4 py-8 text-center text-[#7a7270] text-sm"
                     >
                       No events yet
                     </td>
@@ -161,83 +158,58 @@ export default function AdminEventsPage() {
                 ) : (
                   events.map((e) => {
                     const s = computedStatus(e);
-                    const speakerCount = e.speakers_data?.length ?? 0;
-                    const flyerCount =
-                      e.flyers?.length ?? (e.flyer_url ? 1 : 0);
                     return (
                       <tr key={e.id} className="hover:bg-[#2a2a2a]">
-                        <td className="px-6 py-4">
+                        <td className="px-4 py-3">
                           <Link
                             href={`/events/${e.slug}`}
                             target="_blank"
-                            className="font-medium text-white hover:text-[#c9a84c] flex items-center gap-1"
+                            className="font-medium text-white hover:text-[#c9a84c] flex items-center gap-1 text-sm"
                           >
                             {e.title}
                             <ExternalLink className="w-3 h-3" />
                           </Link>
-                          {e.tagline && (
-                            <p className="text-[10px] text-[#7a7270] mt-0.5">
-                              {e.tagline}
-                            </p>
-                          )}
                         </td>
-                        <td className="px-6 py-4 text-sm text-[#b8b0a8]">
-                          {e.category}
-                        </td>
-                        <td className="px-6 py-4 text-sm text-[#b8b0a8] whitespace-nowrap">
+                        <td className="px-4 py-3 text-xs text-[#b8b0a8] whitespace-nowrap">
                           {e.starts_at
-                            ? new Date(e.starts_at).toLocaleString()
-                            : "-"}
+                            ? new Date(e.starts_at).toLocaleDateString()
+                            : "—"}
                         </td>
-                        <td className="px-6 py-4">
+                        <td className="px-4 py-3">
                           <span
-                            className={`px-2 py-1 rounded-full text-xs font-medium border ${statusColor(s)}`}
+                            className={`px-2 py-1 rounded-full text-[10px] font-medium border whitespace-nowrap ${statusColor(s)}`}
                           >
                             {statusLabel(s)}
                           </span>
                         </td>
-                        <td className="px-6 py-4 text-sm">
+                        <td className="px-4 py-3 text-sm">
                           {e.is_featured ? (
                             <Star className="w-4 h-4 text-[#c9a84c] fill-[#c9a84c]" />
                           ) : (
-                            <span className="text-[#7a7270]">-</span>
+                            <span className="text-[#7a7270]">—</span>
                           )}
                         </td>
-                        <td className="px-6 py-4 text-sm text-[#b8b0a8]">
-                          {speakerCount > 0 ? (
-                            <span className="inline-flex items-center gap-1">
-                              <User className="w-3 h-3" />
-                              {speakerCount}
-                            </span>
-                          ) : (
-                            "-"
-                          )}
+                        <td className="px-4 py-3 text-xs text-[#b8b0a8]">
+                          {e.speakers_data?.length ?? 0}
                         </td>
-                        <td className="px-6 py-4 text-sm text-[#b8b0a8]">
-                          {flyerCount > 0 ? (
-                            <span className="inline-flex items-center gap-1">
-                              <ImageIcon className="w-3 h-3" />
-                              {flyerCount}
-                            </span>
-                          ) : (
-                            "-"
-                          )}
+                        <td className="px-4 py-3 text-xs text-[#b8b0a8]">
+                          {e.flyers?.length ?? (e.flyer_url ? 1 : 0)}
                         </td>
-                        <td className="px-6 py-4 text-sm text-[#b8b0a8] whitespace-nowrap">
+                        <td className="px-4 py-3 text-xs text-[#b8b0a8] whitespace-nowrap">
                           {e.registered}/{e.capacity}
                         </td>
-                        <td className="px-6 py-4">
+                        <td className="px-4 py-3">
                           <div className="flex items-center gap-1">
                             <button
                               onClick={() => openEdit(e)}
-                              className="p-1 text-[#7a7270] hover:text-[#c9a84c] hover:bg-[#c9a84c]/20 rounded transition"
+                              className="p-1.5 text-[#7a7270] hover:text-[#c9a84c] hover:bg-[#c9a84c]/20 rounded transition touch-manipulation"
                               title="Edit"
                             >
                               <Pencil size={16} />
                             </button>
                             <button
                               onClick={() => del(e.id)}
-                              className="p-1 text-[#7a7270] hover:text-red-400 hover:bg-red-500/20 rounded transition"
+                              className="p-1.5 text-[#7a7270] hover:text-red-400 hover:bg-red-500/20 rounded transition touch-manipulation"
                               title="Delete"
                             >
                               <Trash2 size={16} />
@@ -274,7 +246,6 @@ function EventForm({ initial, onSaved, onCancel }: FormProps) {
     venue: initial?.venue ?? "Virtual",
     price: initial?.price ?? "Free",
     capacity: initial?.capacity ?? 500,
-    flyer_url: initial?.flyer_url ?? "",
     whatsapp_url: initial?.whatsapp_url ?? "",
     is_featured: initial?.is_featured ?? false,
     tags: (initial?.tags ?? []).join(", "),
@@ -286,7 +257,7 @@ function EventForm({ initial, onSaved, onCancel }: FormProps) {
       ? initial.flyers
       : initial?.flyer_url
         ? [initial.flyer_url]
-        : [""],
+        : [],
   );
 
   const [speakers, setSpeakers] = useState<Speaker[]>(
@@ -311,18 +282,6 @@ function EventForm({ initial, onSaved, onCancel }: FormProps) {
     setSpeakers((s) =>
       s.map((sp, idx) => (idx === i ? { ...sp, ...patch } : sp)),
     );
-  const updateSpeakerSocial = (
-    i: number,
-    key: keyof NonNullable<Speaker["socials"]>,
-    v: string,
-  ) =>
-    setSpeakers((s) =>
-      s.map((sp, idx) =>
-        idx === i
-          ? { ...sp, socials: { ...(sp.socials || {}), [key]: v } }
-          : sp,
-      ),
-    );
 
   const submit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -330,7 +289,7 @@ function EventForm({ initial, onSaved, onCancel }: FormProps) {
     setErr("");
     try {
       const cleanFlyers = flyers.map((f) => f.trim()).filter(Boolean);
-      const primaryFlyer = form.flyer_url.trim() || cleanFlyers[0] || "";
+      const primaryFlyer = cleanFlyers[0] || "";
 
       const r = await fetch("/api/admin/events", {
         method: "POST",
@@ -345,10 +304,7 @@ function EventForm({ initial, onSaved, onCancel }: FormProps) {
           starts_at: new Date(form.starts_at).toISOString(),
           ends_at: form.ends_at ? new Date(form.ends_at).toISOString() : null,
           tags: form.tags
-            ? form.tags
-                .split(",")
-                .map((t) => t.trim())
-                .filter(Boolean)
+            ? form.tags.split(",").map((t) => t.trim()).filter(Boolean)
             : [],
           override_status: form.override_status || null,
         }),
@@ -372,7 +328,7 @@ function EventForm({ initial, onSaved, onCancel }: FormProps) {
   return (
     <form
       onSubmit={submit}
-      className="bg-[#1a1a1a] rounded-xl border border-[#333333] p-6 space-y-5"
+      className="bg-[#1a1a1a] rounded-xl border border-[#333333] p-4 sm:p-6 space-y-5"
     >
       <div className="grid md:grid-cols-2 gap-4">
         <div className="md:col-span-2">
@@ -386,14 +342,14 @@ function EventForm({ initial, onSaved, onCancel }: FormProps) {
         </div>
 
         <div className="md:col-span-2">
-          <label className={label}>Slug (auto-generated)</label>
-          <code className="block px-4 py-2.5 bg-[#0d0d0d] border border-[#333333] rounded-lg text-xs text-[#c9a84c]">
+          <label className={label}>Slug</label>
+          <code className="block px-4 py-2 bg-[#0d0d0d] border border-[#333333] rounded-lg text-xs text-[#c9a84c] break-all">
             /events/{initial?.slug ?? previewSlug}
           </code>
         </div>
 
         <div className="md:col-span-2">
-          <label className={label}>Tagline (optional, shown under title)</label>
+          <label className={label}>Tagline (optional)</label>
           <input
             className={field}
             placeholder="Ex: Make your break count"
@@ -478,73 +434,72 @@ function EventForm({ initial, onSaved, onCancel }: FormProps) {
           />
         </div>
 
+        {/* ===== FLYER GALLERY with uploads ===== */}
         <div className="md:col-span-2">
-          <label className={label}>Primary Flyer URL</label>
-          <input
-            className={field}
-            placeholder="/events/flyer.jpg"
-            value={form.flyer_url}
-            onChange={(e) => setForm({ ...form, flyer_url: e.target.value })}
-          />
-          <p className="text-[10px] text-[#7a7270] mt-1.5">
-            Used as main image on cards and social previews.
-          </p>
-        </div>
-
-        {/* Flyers gallery */}
-        <div className="md:col-span-2">
-          <div className="flex items-center justify-between mb-2">
+          <div className="flex items-center justify-between mb-3">
             <label className={label} style={{ marginBottom: 0 }}>
-              Flyer Gallery ({flyers.length})
+              Flyers ({flyers.length})
             </label>
             <button
               type="button"
               onClick={addFlyer}
-              className="text-xs text-[#c9a84c] hover:text-[#a8873a] font-semibold flex items-center gap-1"
+              className="text-xs text-[#c9a84c] hover:text-[#a8873a] font-semibold flex items-center gap-1 touch-manipulation"
             >
               <Plus size={14} /> Add flyer
             </button>
           </div>
-          <div className="space-y-2">
-            {flyers.map((f, i) => (
-              <div key={i} className="flex gap-2 items-center">
-                <span className="text-[10px] text-[#7a7270] w-6 shrink-0">
-                  #{i + 1}
-                </span>
-                <input
-                  className={field}
-                  placeholder="/events/speaker-1.jpg"
-                  value={f}
-                  onChange={(e) => updateFlyer(i, e.target.value)}
-                />
-                <button
-                  type="button"
-                  onClick={() => removeFlyer(i)}
-                  disabled={flyers.length === 1}
-                  className="p-2 text-[#7a7270] hover:text-red-400 hover:bg-red-500/20 rounded transition disabled:opacity-30 disabled:cursor-not-allowed shrink-0"
-                  title="Remove"
-                >
-                  <Trash2 size={14} />
-                </button>
-              </div>
-            ))}
-          </div>
+
+          {flyers.length === 0 ? (
+            <button
+              type="button"
+              onClick={addFlyer}
+              className="w-full py-6 border-2 border-dashed border-[#333333] hover:border-[#c9a84c] rounded-lg text-[#7a7270] hover:text-[#c9a84c] transition-colors flex flex-col items-center gap-2 touch-manipulation"
+            >
+              <Plus size={20} />
+              <span className="text-xs font-semibold">
+                Add your first flyer
+              </span>
+            </button>
+          ) : (
+            <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+              {flyers.map((f, i) => (
+                <div key={i} className="relative">
+                  <ImageUpload
+                    value={f}
+                    onChange={(url) => updateFlyer(i, url)}
+                    folder="flyers"
+                    aspect="portrait"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => removeFlyer(i)}
+                    className="absolute -top-2 -right-2 p-1 bg-red-500 text-white rounded-full touch-manipulation z-10"
+                    title="Remove"
+                  >
+                    <Trash2 size={12} />
+                  </button>
+                  <p className="text-[9px] text-[#7a7270] text-center mt-1">
+                    Flyer {i + 1}
+                  </p>
+                </div>
+              ))}
+            </div>
+          )}
           <p className="text-[10px] text-[#7a7270] mt-2">
-            Tip: upload images to <code>public/events/</code> and reference them
-            as <code>/events/your-file.jpg</code>.
+            First flyer is used on cards and social previews.
           </p>
         </div>
 
-        {/* Speakers */}
+        {/* ===== SPEAKERS with photo uploads ===== */}
         <div className="md:col-span-2">
-          <div className="flex items-center justify-between mb-2">
+          <div className="flex items-center justify-between mb-3">
             <label className={label} style={{ marginBottom: 0 }}>
               Speakers ({speakers.length})
             </label>
             <button
               type="button"
               onClick={addSpeaker}
-              className="text-xs text-[#c9a84c] hover:text-[#a8873a] font-semibold flex items-center gap-1"
+              className="text-xs text-[#c9a84c] hover:text-[#a8873a] font-semibold flex items-center gap-1 touch-manipulation"
             >
               <Plus size={14} /> Add speaker
             </button>
@@ -555,7 +510,7 @@ function EventForm({ initial, onSaved, onCancel }: FormProps) {
               No speakers added. Optional.
             </p>
           ) : (
-            <div className="space-y-3">
+            <div className="space-y-4">
               {speakers.map((sp, i) => (
                 <div
                   key={i}
@@ -568,119 +523,98 @@ function EventForm({ initial, onSaved, onCancel }: FormProps) {
                     <button
                       type="button"
                       onClick={() => removeSpeaker(i)}
-                      className="p-1 text-[#7a7270] hover:text-red-400 hover:bg-red-500/20 rounded transition"
-                      title="Remove"
+                      className="p-1 text-[#7a7270] hover:text-red-400 hover:bg-red-500/20 rounded transition touch-manipulation"
                     >
                       <Trash2 size={14} />
                     </button>
                   </div>
 
-                  <div className="grid md:grid-cols-2 gap-3">
-                    <div>
-                      <label className="text-[10px] text-[#7a7270] font-semibold block mb-1">
-                        Name *
-                      </label>
-                      <input
-                        className={field}
-                        value={sp.name}
-                        onChange={(e) =>
-                          updateSpeaker(i, { name: e.target.value })
-                        }
-                        placeholder="Full name"
-                      />
+                  <div className="grid sm:grid-cols-[120px_1fr] gap-4">
+                    {/* Speaker photo upload */}
+                    <ImageUpload
+                      value={sp.photo ?? ""}
+                      onChange={(url) => updateSpeaker(i, { photo: url })}
+                      folder="speakers"
+                      aspect="square"
+                      label="Photo"
+                    />
+
+                    <div className="space-y-3">
+                      <div>
+                        <label className="text-[10px] text-[#7a7270] font-semibold block mb-1">
+                          Name *
+                        </label>
+                        <input
+                          className={field}
+                          value={sp.name}
+                          onChange={(e) =>
+                            updateSpeaker(i, { name: e.target.value })
+                          }
+                          placeholder="Full name"
+                        />
+                      </div>
+                      <div>
+                        <label className="text-[10px] text-[#7a7270] font-semibold block mb-1">
+                          Title / Role
+                        </label>
+                        <input
+                          className={field}
+                          value={sp.title ?? ""}
+                          onChange={(e) =>
+                            updateSpeaker(i, { title: e.target.value })
+                          }
+                          placeholder="Ex: CEO at Company"
+                        />
+                      </div>
                     </div>
-                    <div>
-                      <label className="text-[10px] text-[#7a7270] font-semibold block mb-1">
-                        Title / Role
-                      </label>
-                      <input
-                        className={field}
-                        value={sp.title ?? ""}
-                        onChange={(e) =>
-                          updateSpeaker(i, { title: e.target.value })
-                        }
-                        placeholder="Ex: CEO at Company"
-                      />
-                    </div>
-                    <div className="md:col-span-2">
-                      <label className="text-[10px] text-[#7a7270] font-semibold block mb-1">
-                        Bio
-                      </label>
-                      <textarea
-                        rows={2}
-                        className={field}
-                        value={sp.bio ?? ""}
-                        onChange={(e) =>
-                          updateSpeaker(i, { bio: e.target.value })
-                        }
-                        placeholder="Short bio (1-2 sentences)"
-                      />
-                    </div>
-                    <div className="md:col-span-2">
-                      <label className="text-[10px] text-[#7a7270] font-semibold block mb-1">
-                        Photo URL
-                      </label>
-                      <input
-                        className={field}
-                        value={sp.photo ?? ""}
-                        onChange={(e) =>
-                          updateSpeaker(i, { photo: e.target.value })
-                        }
-                        placeholder="/events/speaker-name.jpg"
-                      />
-                    </div>
-                    <div>
-                      <label className="text-[10px] text-[#7a7270] font-semibold block mb-1">
-                        LinkedIn
-                      </label>
-                      <input
-                        className={field}
-                        value={sp.socials?.linkedin ?? ""}
-                        onChange={(e) =>
-                          updateSpeakerSocial(i, "linkedin", e.target.value)
-                        }
-                        placeholder="https://linkedin.com/in/..."
-                      />
-                    </div>
-                    <div>
-                      <label className="text-[10px] text-[#7a7270] font-semibold block mb-1">
-                        X (Twitter)
-                      </label>
-                      <input
-                        className={field}
-                        value={sp.socials?.x ?? ""}
-                        onChange={(e) =>
-                          updateSpeakerSocial(i, "x", e.target.value)
-                        }
-                        placeholder="https://x.com/..."
-                      />
-                    </div>
-                    <div>
-                      <label className="text-[10px] text-[#7a7270] font-semibold block mb-1">
-                        WhatsApp
-                      </label>
-                      <input
-                        className={field}
-                        value={sp.socials?.whatsapp ?? ""}
-                        onChange={(e) =>
-                          updateSpeakerSocial(i, "whatsapp", e.target.value)
-                        }
-                        placeholder="https://wa.me/..."
-                      />
-                    </div>
-                    <div>
-                      <label className="text-[10px] text-[#7a7270] font-semibold block mb-1">
-                        Website
-                      </label>
-                      <input
-                        className={field}
-                        value={sp.socials?.website ?? ""}
-                        onChange={(e) =>
-                          updateSpeakerSocial(i, "website", e.target.value)
-                        }
-                        placeholder="https://..."
-                      />
-                    </div>
+                  </div>
+
+                  <div>
+                    <label className="text-[10px] text-[#7a7270] font-semibold block mb-1">
+                      Bio
+                    </label>
+                    <textarea
+                      rows={2}
+                      className={field}
+                      value={sp.bio ?? ""}
+                      onChange={(e) =>
+                        updateSpeaker(i, { bio: e.target.value })
+                      }
+                      placeholder="Short bio (1-2 sentences)"
+                    />
+                  </div>
+
+                  <div className="grid sm:grid-cols-2 gap-3">
+                    {(["linkedin", "x", "whatsapp", "website"] as const).map(
+                      (key) => (
+                        <div key={key}>
+                          <label className="text-[10px] text-[#7a7270] font-semibold block mb-1 capitalize">
+                            {key === "x" ? "X (Twitter)" : key}
+                          </label>
+                          <input
+                            className={field}
+                            value={sp.socials?.[key] ?? ""}
+                            onChange={(e) =>
+                              updateSpeaker(i, {
+                                socials: {
+                                  ...(sp.socials || {}),
+                                  [key]: e.target.value,
+                                },
+                              })
+                            }
+                            placeholder={
+                              key === "linkedin"
+                                ? "https://linkedin.com/in/..."
+                                : key === "x"
+                                  ? "https://x.com/..."
+                                  : key === "whatsapp"
+                                    ? "https://wa.me/..."
+                                    : "https://..."
+                            }
+                          />
+                        </div>
+                      ),
+                    )}
                   </div>
                 </div>
               ))}
@@ -709,7 +643,7 @@ function EventForm({ initial, onSaved, onCancel }: FormProps) {
         </div>
 
         <div>
-          <label className={label}>Override Status (optional)</label>
+          <label className={label}>Override Status</label>
           <select
             className={field}
             value={form.override_status}
@@ -717,7 +651,7 @@ function EventForm({ initial, onSaved, onCancel }: FormProps) {
               setForm({ ...form, override_status: e.target.value })
             }
           >
-            <option value="">Auto (based on dates)</option>
+            <option value="">Auto</option>
             <option value="draft">Draft</option>
             <option value="upcoming">Upcoming</option>
             <option value="live">Live</option>
@@ -734,6 +668,7 @@ function EventForm({ initial, onSaved, onCancel }: FormProps) {
             onChange={(e) =>
               setForm({ ...form, is_featured: e.target.checked })
             }
+            className="w-4 h-4"
           />
           <label htmlFor="featured" className="text-sm text-[#b8b0a8]">
             Feature this event (hero + popup + home register)
@@ -747,18 +682,18 @@ function EventForm({ initial, onSaved, onCancel }: FormProps) {
         </div>
       )}
 
-      <div className="flex gap-3">
+      <div className="flex gap-3 sticky bottom-0 bg-[#1a1a1a] pt-4 -mx-4 sm:-mx-6 px-4 sm:px-6 border-t border-[#333333]">
         <button
           type="submit"
           disabled={saving}
-          className="px-6 py-3 bg-[#c9a84c] hover:bg-[#a8873a] text-[#0d0d0d] font-bold rounded-lg disabled:opacity-50"
+          className="flex-1 sm:flex-none px-6 py-3 bg-[#c9a84c] hover:bg-[#a8873a] text-[#0d0d0d] font-bold rounded-lg disabled:opacity-50 touch-manipulation"
         >
           {saving ? "Saving..." : initial ? "Update Event" : "Create Event"}
         </button>
         <button
           type="button"
           onClick={onCancel}
-          className="px-6 py-3 bg-[#0d0d0d] hover:bg-[#2a2a2a] text-[#b8b0a8] border border-[#333333] rounded-lg font-semibold"
+          className="flex-1 sm:flex-none px-6 py-3 bg-[#0d0d0d] hover:bg-[#2a2a2a] text-[#b8b0a8] border border-[#333333] rounded-lg font-semibold touch-manipulation"
         >
           Cancel
         </button>
