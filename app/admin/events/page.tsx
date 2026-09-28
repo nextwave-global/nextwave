@@ -1,5 +1,5 @@
 "use client";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import {
   Plus,
@@ -269,12 +269,48 @@ function EventForm({ initial, onSaved, onCancel }: FormProps) {
   const [saving, setSaving] = useState(false);
   const [err, setErr] = useState("");
 
+  // ===== Orphan tracking =====
+  // Paths uploaded during this form session that aren't yet committed.
+  // If the user cancels, we delete these from storage.
+  const uploadedPaths = useRef<Set<string>>(new Set());
+  const committed = useRef(false); // becomes true on successful save
+
+  // Best-effort cleanup if the user closes the tab without saving
+  useEffect(() => {
+    const handleBeforeUnload = () => {
+      if (committed.current || uploadedPaths.current.size === 0) return;
+      // sendBeacon is fire-and-forget; works during page unload
+      const body = JSON.stringify({
+        paths: Array.from(uploadedPaths.current),
+      });
+      navigator.sendBeacon?.(
+        "/api/admin/upload/cleanup",
+        new Blob([body], { type: "application/json" }),
+      );
+    };
+    window.addEventListener("beforeunload", handleBeforeUnload);
+    return () => {
+      window.removeEventListener("beforeunload", handleBeforeUnload);
+    };
+  }, []);
+
+  const trackUploaded = (path: string) => {
+    uploadedPaths.current.add(path);
+  };
+
+  const untrackRemoved = (path: string) => {
+    // The user removed the image inside the form; don't try to clean it up later
+    uploadedPaths.current.delete(path);
+  };
+
+  // ===== Flyers =====
   const addFlyer = () => setFlyers((f) => [...f, ""]);
   const removeFlyer = (i: number) =>
     setFlyers((f) => f.filter((_, idx) => idx !== i));
   const updateFlyer = (i: number, v: string) =>
     setFlyers((f) => f.map((x, idx) => (idx === i ? v : x)));
 
+  // ===== Speakers =====
   const addSpeaker = () => setSpeakers((s) => [...s, emptySpeaker()]);
   const removeSpeaker = (i: number) =>
     setSpeakers((s) => s.filter((_, idx) => idx !== i));
@@ -282,6 +318,24 @@ function EventForm({ initial, onSaved, onCancel }: FormProps) {
     setSpeakers((s) =>
       s.map((sp, idx) => (idx === i ? { ...sp, ...patch } : sp)),
     );
+
+  // ===== Cleanup on cancel =====
+  const handleCancel = async () => {
+    const paths = Array.from(uploadedPaths.current);
+    if (paths.length > 0) {
+      try {
+        await fetch("/api/admin/upload/cleanup", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ paths }),
+        });
+      } catch (e) {
+        console.error("Cleanup failed (non-blocking):", e);
+      }
+      uploadedPaths.current.clear();
+    }
+    onCancel();
+  };
 
   const submit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -311,6 +365,9 @@ function EventForm({ initial, onSaved, onCancel }: FormProps) {
       });
       const data = await r.json();
       if (!r.ok) throw new Error(data.error || "Failed");
+
+      // Mark as committed BEFORE onSaved() unmounts us
+      committed.current = true;
       onSaved();
     } catch (e) {
       setErr(e instanceof Error ? e.message : "Failed");
@@ -434,7 +491,7 @@ function EventForm({ initial, onSaved, onCancel }: FormProps) {
           />
         </div>
 
-        {/* ===== FLYER GALLERY with uploads ===== */}
+        {/* ===== FLYERS ===== */}
         <div className="md:col-span-2">
           <div className="flex items-center justify-between mb-3">
             <label className={label} style={{ marginBottom: 0 }}>
@@ -467,6 +524,8 @@ function EventForm({ initial, onSaved, onCancel }: FormProps) {
                   <ImageUpload
                     value={f}
                     onChange={(url) => updateFlyer(i, url)}
+                    onUploaded={trackUploaded}
+                    onRemoved={untrackRemoved}
                     folder="flyers"
                     aspect="portrait"
                   />
@@ -490,7 +549,7 @@ function EventForm({ initial, onSaved, onCancel }: FormProps) {
           </p>
         </div>
 
-        {/* ===== SPEAKERS with photo uploads ===== */}
+        {/* ===== SPEAKERS ===== */}
         <div className="md:col-span-2">
           <div className="flex items-center justify-between mb-3">
             <label className={label} style={{ marginBottom: 0 }}>
@@ -530,10 +589,11 @@ function EventForm({ initial, onSaved, onCancel }: FormProps) {
                   </div>
 
                   <div className="grid sm:grid-cols-[120px_1fr] gap-4">
-                    {/* Speaker photo upload */}
                     <ImageUpload
                       value={sp.photo ?? ""}
                       onChange={(url) => updateSpeaker(i, { photo: url })}
+                      onUploaded={trackUploaded}
+                      onRemoved={untrackRemoved}
                       folder="speakers"
                       aspect="square"
                       label="Photo"
@@ -692,7 +752,7 @@ function EventForm({ initial, onSaved, onCancel }: FormProps) {
         </button>
         <button
           type="button"
-          onClick={onCancel}
+          onClick={handleCancel}
           className="flex-1 sm:flex-none px-6 py-3 bg-[#0d0d0d] hover:bg-[#2a2a2a] text-[#b8b0a8] border border-[#333333] rounded-lg font-semibold touch-manipulation"
         >
           Cancel
