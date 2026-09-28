@@ -106,7 +106,7 @@ export default function AdminEventsPage() {
         type: "success",
         message:
           data.deleted === 0
-            ? "All clean — nothing to remove."
+            ? "All clean nothing to remove 😊"
             : `Removed ${data.deleted} unused image${data.deleted === 1 ? "" : "s"}.`,
       });
     } catch (e) {
