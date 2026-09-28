@@ -9,6 +9,9 @@ import {
   Loader2,
   Pencil,
   X,
+  Sparkles,
+  CheckCircle,
+  AlertTriangle,
 } from "lucide-react";
 import type { DbEvent, Speaker } from "@/types/db";
 import { computedStatus, statusLabel, statusColor, slugify } from "@/lib/events";
@@ -34,6 +37,13 @@ export default function AdminEventsPage() {
   const [loading, setLoading] = useState(true);
   const [showForm, setShowForm] = useState(false);
   const [editing, setEditing] = useState<DbEvent | null>(null);
+
+  // Sweep state
+  const [sweeping, setSweeping] = useState(false);
+  const [sweepResult, setSweepResult] = useState<{
+    type: "success" | "error";
+    message: string;
+  } | null>(null);
 
   const load = async () => {
     setLoading(true);
@@ -77,6 +87,40 @@ export default function AdminEventsPage() {
     load();
   };
 
+  const runSweep = async () => {
+    const confirmed = confirm(
+      "Clean up unused image files?\n\nThis removes images that were uploaded but never saved to an event (older than 24 hours). It won't touch images currently used on events.",
+    );
+    if (!confirmed) return;
+
+    setSweeping(true);
+    setSweepResult(null);
+
+    try {
+      const r = await fetch("/api/admin/upload/sweep", { method: "POST" });
+      const data = await r.json();
+
+      if (!r.ok) throw new Error(data.error || "Cleanup failed");
+
+      setSweepResult({
+        type: "success",
+        message:
+          data.deleted === 0
+            ? "All clean — nothing to remove."
+            : `Removed ${data.deleted} unused image${data.deleted === 1 ? "" : "s"}.`,
+      });
+    } catch (e) {
+      setSweepResult({
+        type: "error",
+        message: e instanceof Error ? e.message : "Cleanup failed",
+      });
+    } finally {
+      setSweeping(false);
+      // Auto-hide the result after 6s
+      setTimeout(() => setSweepResult(null), 6000);
+    }
+  };
+
   return (
     <div className="min-h-screen bg-[#0d0d0d] p-4 sm:p-6">
       <div className="max-w-7xl mx-auto">
@@ -95,21 +139,60 @@ export default function AdminEventsPage() {
               Status auto-updates based on date &amp; time.
             </p>
           </div>
-          <button
-            onClick={showForm ? closeForm : openNew}
-            className="flex items-center gap-2 px-4 py-2 bg-[#c9a84c] hover:bg-[#a8873a] text-[#0d0d0d] rounded-lg font-semibold text-sm"
-          >
-            {showForm ? (
-              <>
-                <X size={16} /> Close
-              </>
-            ) : (
-              <>
-                <Plus size={16} /> Add Event
-              </>
-            )}
-          </button>
+
+          <div className="flex flex-wrap items-center gap-2">
+            <button
+              onClick={runSweep}
+              disabled={sweeping}
+              className="flex items-center gap-2 px-4 py-2 bg-[#1a1a1a] hover:bg-[#2a2a2a] text-[#b8b0a8] hover:text-[#c9a84c] border border-[#333333] hover:border-[#c9a84c] rounded-lg font-semibold text-sm disabled:opacity-50 touch-manipulation transition-colors"
+              title="Delete unused uploaded images"
+            >
+              {sweeping ? (
+                <>
+                  <Loader2 size={16} className="animate-spin" />
+                  Cleaning...
+                </>
+              ) : (
+                <>
+                  <Sparkles size={16} />
+                  Clean up files
+                </>
+              )}
+            </button>
+
+            <button
+              onClick={showForm ? closeForm : openNew}
+              className="flex items-center gap-2 px-4 py-2 bg-[#c9a84c] hover:bg-[#a8873a] text-[#0d0d0d] rounded-lg font-semibold text-sm touch-manipulation"
+            >
+              {showForm ? (
+                <>
+                  <X size={16} /> Close
+                </>
+              ) : (
+                <>
+                  <Plus size={16} /> Add Event
+                </>
+              )}
+            </button>
+          </div>
         </div>
+
+        {sweepResult && (
+          <div
+            className={`mb-4 p-3 rounded-lg text-sm flex items-center gap-2 border ${
+              sweepResult.type === "success"
+                ? "bg-green-500/10 border-green-500/20 text-green-400"
+                : "bg-red-500/10 border-red-500/20 text-red-400"
+            }`}
+          >
+            {sweepResult.type === "success" ? (
+              <CheckCircle size={16} className="shrink-0" />
+            ) : (
+              <AlertTriangle size={16} className="shrink-0" />
+            )}
+            {sweepResult.message}
+          </div>
+        )}
 
         {showForm && (
           <EventForm initial={editing} onSaved={onSaved} onCancel={closeForm} />
@@ -269,17 +352,13 @@ function EventForm({ initial, onSaved, onCancel }: FormProps) {
   const [saving, setSaving] = useState(false);
   const [err, setErr] = useState("");
 
-  // ===== Orphan tracking =====
-  // Paths uploaded during this form session that aren't yet committed.
-  // If the user cancels, we delete these from storage.
+  // Orphan tracking
   const uploadedPaths = useRef<Set<string>>(new Set());
-  const committed = useRef(false); // becomes true on successful save
+  const committed = useRef(false);
 
-  // Best-effort cleanup if the user closes the tab without saving
   useEffect(() => {
     const handleBeforeUnload = () => {
       if (committed.current || uploadedPaths.current.size === 0) return;
-      // sendBeacon is fire-and-forget; works during page unload
       const body = JSON.stringify({
         paths: Array.from(uploadedPaths.current),
       });
@@ -299,18 +378,15 @@ function EventForm({ initial, onSaved, onCancel }: FormProps) {
   };
 
   const untrackRemoved = (path: string) => {
-    // The user removed the image inside the form; don't try to clean it up later
     uploadedPaths.current.delete(path);
   };
 
-  // ===== Flyers =====
   const addFlyer = () => setFlyers((f) => [...f, ""]);
   const removeFlyer = (i: number) =>
     setFlyers((f) => f.filter((_, idx) => idx !== i));
   const updateFlyer = (i: number, v: string) =>
     setFlyers((f) => f.map((x, idx) => (idx === i ? v : x)));
 
-  // ===== Speakers =====
   const addSpeaker = () => setSpeakers((s) => [...s, emptySpeaker()]);
   const removeSpeaker = (i: number) =>
     setSpeakers((s) => s.filter((_, idx) => idx !== i));
@@ -319,7 +395,6 @@ function EventForm({ initial, onSaved, onCancel }: FormProps) {
       s.map((sp, idx) => (idx === i ? { ...sp, ...patch } : sp)),
     );
 
-  // ===== Cleanup on cancel =====
   const handleCancel = async () => {
     const paths = Array.from(uploadedPaths.current);
     if (paths.length > 0) {
@@ -366,7 +441,6 @@ function EventForm({ initial, onSaved, onCancel }: FormProps) {
       const data = await r.json();
       if (!r.ok) throw new Error(data.error || "Failed");
 
-      // Mark as committed BEFORE onSaved() unmounts us
       committed.current = true;
       onSaved();
     } catch (e) {
@@ -491,7 +565,6 @@ function EventForm({ initial, onSaved, onCancel }: FormProps) {
           />
         </div>
 
-        {/* ===== FLYERS ===== */}
         <div className="md:col-span-2">
           <div className="flex items-center justify-between mb-3">
             <label className={label} style={{ marginBottom: 0 }}>
@@ -549,7 +622,6 @@ function EventForm({ initial, onSaved, onCancel }: FormProps) {
           </p>
         </div>
 
-        {/* ===== SPEAKERS ===== */}
         <div className="md:col-span-2">
           <div className="flex items-center justify-between mb-3">
             <label className={label} style={{ marginBottom: 0 }}>
