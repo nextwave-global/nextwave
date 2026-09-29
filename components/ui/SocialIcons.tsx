@@ -2,7 +2,7 @@
 
 import {
   FaLinkedinIn,
-  FaTelegramPlane,
+  FaTelegram,
   FaInstagram,
   FaWhatsapp,
   FaXTwitter,
@@ -31,7 +31,7 @@ export const SOCIAL_LINKS: SocialLink[] = [
     key: "telegram",
     label: "Telegram",
     url: "https://t.me/+NdjMKKMF6rNjNjBk",
-    Icon: FaTelegramPlane,
+    Icon: FaTelegram,
     color: "#0088CC",
     hoverBg: "hover:bg-[#0088CC]",
   },
@@ -135,7 +135,7 @@ export function BrandIcon({
     linkedin: FaLinkedinIn,
     x: FaXTwitter,
     whatsapp: FaWhatsapp,
-    telegram: FaTelegramPlane,
+    telegram: FaTelegram,
     instagram: FaInstagram,
   };
   const Icon = map[brand];
