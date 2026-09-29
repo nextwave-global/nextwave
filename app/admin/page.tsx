@@ -187,6 +187,12 @@ export default function AdminDashboard() {
             >
               Manage Events
             </Link>
+            <Link
+              href="/admin/applications"
+              className="flex items-center gap-2 px-4 py-2 bg-[#1a1a1a] text-[#b8b0a8] border border-[#333333] rounded-lg hover:border-[#c9a84c] hover:text-[#c9a84c] transition"
+            >
+              Applications
+            </Link>
             <button
               onClick={handleLogout}
               className="flex items-center gap-2 px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition"
