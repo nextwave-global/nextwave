@@ -20,7 +20,7 @@ export default function Story() {
             Our <span className="text-[#c9a84c]">Origin</span>
           </h2>
           <p className="text-[#b8b0a8] mb-4 text-sm md:text-base leading-relaxed">
-            NextWave Global started as a small WhatsApp channel sharing personal
+            NextWave Global started as a small WhatsApp group sharing personal
             development insights to help students grow holistically.
           </p>
           <p className="text-[#b8b0a8] text-sm md:text-base leading-relaxed">
