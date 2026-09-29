@@ -1,6 +1,6 @@
 "use client";
 
-import { Mail, MapPin, ArrowUp } from "lucide-react";
+import { Mail, MapPin, ArrowUp, Lock } from "lucide-react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { SocialIconsRow } from "@/components/ui/SocialIcons";
@@ -118,25 +118,28 @@ export default function Footer() {
           </div>
         </div>
 
-        {/* Bottom Bar: Copyright, Admin & Back-to-Top */}
-        <div className="pt-8 flex flex-col sm:flex-row items-center justify-between gap-4">
-          <div className="flex items-center gap-3 text-xs tracking-wider text-[#636363]">
+        {/* Bottom Bar: Copyright, Admin Portal & Back-to-Top */}
+        <div className="pt-8 flex flex-col sm:flex-row items-center justify-between gap-5 text-xs text-[#636363]">
+          {/* Left: Copyright & Admin Portal */}
+          <div className="flex flex-wrap items-center justify-center sm:justify-start gap-x-4 gap-y-2">
             <span>
               © {new Date().getFullYear()} Nextwave Global. All rights reserved.
             </span>
-            <span>•</span>
+            <span className="hidden sm:inline text-white/10">•</span>
             <Link
               href="/admin"
-              className="text-[#636363] hover:text-[#c9a84c] transition-colors text-[11px] uppercase tracking-widest"
+              className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded text-[11px] font-medium tracking-wide text-[#8e8e8e] hover:text-[#c9a84c] bg-white/[0.03] hover:bg-white/[0.06] border border-white/5 hover:border-[#c9a84c]/20 transition-all duration-200"
             >
-              Admin
+              <Lock className="w-3 h-3 text-[#c9a84c]/80" />
+              <span>Admin Page</span>
             </Link>
           </div>
 
+          {/* Right: Scroll to top */}
           <button
             type="button"
             onClick={scrollToTop}
-            className="group flex items-center gap-2 text-xs uppercase tracking-widest text-[#8e8e8e] hover:text-[#c9a84c] transition-colors"
+            className="group flex items-center gap-2 uppercase tracking-widest text-[#8e8e8e] hover:text-[#c9a84c] transition-colors"
             aria-label="Scroll to top"
           >
             <span>Back to top</span>
