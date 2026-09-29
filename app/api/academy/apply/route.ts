@@ -138,7 +138,7 @@ export async function POST(request: NextRequest) {
       await emailService.sendConfirmationEmail({
         email: application.email,
         fullName: application.full_name,
-        eventTitle: `NextWave Academy — ${trackLabel} Class`,
+        eventTitle: `NextWave Academy - ${trackLabel} Class`,
         eventDate: "We'll confirm the date shortly",
         eventVenue: "Online (WhatsApp + Live Session)",
         phone: application.whatsapp,

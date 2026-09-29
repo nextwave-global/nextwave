@@ -14,12 +14,12 @@ import {
   Phone,
   GraduationCap,
   Building2,
-  Linkedin,
   Sparkles,
   Target,
   Wallet,
   X,
 } from "lucide-react";
+import { FaLinkedin } from "react-icons/fa";
 import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
 import {
@@ -557,7 +557,7 @@ function Step3({ form, set }: StepProps) {
                 className="overflow-hidden"
               >
                 <div className="relative mt-3">
-                  <Linkedin className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-[#7a7270]" />
+                  <FaLinkedin className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-[#7a7270]" />
                   <input
                     type="url"
                     className={`${inputClass} pl-10`}
@@ -630,7 +630,7 @@ function Step4({ form, set }: StepProps) {
         Your learning goals
       </h2>
       <p className="text-sm text-[#7a7270] mb-6">
-        Be honest — this helps us tailor the class.
+        Be honest - this helps us tailor the class.
       </p>
 
       <div className="space-y-5">
@@ -782,7 +782,7 @@ function Step5({ form, set }: StepProps) {
 
       <p className="text-[11px] text-[#7a7270] mt-5 leading-relaxed">
         Choosing &quot;I need sponsorship&quot; doesn&apos;t disqualify you.
-        We have limited slots for financial aid — we&apos;ll reach out
+        We have limited slots for financial aid - we&apos;ll reach out
         separately.
       </p>
     </div>

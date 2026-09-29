@@ -100,7 +100,7 @@ export default function Hero() {
             variants={item}
             className="text-base sm:text-lg md:text-xl text-[#b8b0a8] mb-10 max-w-2xl mx-auto px-4"
           >
-            NextWave Global empowers students to thrive beyond the classroom —
+            NextWave Global empowers students to thrive beyond the classroom -
             and we&apos;re evolving into an academy.
           </motion.p>
 
@@ -131,7 +131,7 @@ export default function Hero() {
               >
                 <span className="w-2 h-2 rounded-full bg-green-500 animate-pulse" />
                 <span className="line-clamp-1">
-                  {featured.title} — {featured.date}
+                  {featured.title} - {featured.date}
                 </span>
                 <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
               </Link>

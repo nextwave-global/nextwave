@@ -7,9 +7,9 @@ import {
   Loader2,
   ExternalLink,
   Star,
-  Linkedin,
   Wallet,
 } from "lucide-react";
+import { FaLinkedin } from "react-icons/fa";
 import type { DbApplication } from "@/types/db";
 import {
   TRACK_LABELS,
@@ -315,10 +315,10 @@ export default function AdminApplicationsPage() {
                               onClick={(e) => e.stopPropagation()}
                               className="text-[#0A66C2] hover:text-[#0A66C2]/80"
                             >
-                              <Linkedin className="w-4 h-4" />
+                              <FaLinkedin className="w-4 h-4" />
                             </a>
                           ) : (
-                            <span className="text-[#7a7270] text-xs">—</span>
+                            <span className="text-[#7a7270] text-xs">-</span>
                           )}
                         </td>
                         <td className="px-4 py-3 text-xs text-[#b8b0a8] whitespace-nowrap">

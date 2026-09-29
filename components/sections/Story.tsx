@@ -39,7 +39,7 @@ export default function Story() {
           <h4 className="font-bold text-lg md:text-xl text-white mb-3 italic">
             Inspiring a generation of students who are ready to lead.
           </h4>
-          <p className="text-[#7a7270] text-sm">— NextWave Global Team</p>
+          <p className="text-[#7a7270] text-sm">- NextWave Global Team</p>
         </motion.div>
       </div>
     </section>
