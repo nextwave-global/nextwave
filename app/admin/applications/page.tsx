@@ -69,10 +69,7 @@ export default function AdminApplicationsPage() {
     return () => clearTimeout(t);
   }, [filters.search]);
 
-  const updateStatus = async (
-    id: string,
-    admin_status: string,
-  ) => {
+  const updateStatus = async (id: string, admin_status: string) => {
     const r = await fetch(`/api/admin/applications/${id}`, {
       method: "PATCH",
       headers: { "Content-Type": "application/json" },
@@ -123,9 +120,7 @@ export default function AdminApplicationsPage() {
       new Date(a.created_at).toLocaleString(),
     ]);
     const csv = [headers, ...rows]
-      .map((r) =>
-        r.map((c) => `"${String(c).replace(/"/g, '""')}"`).join(","),
-      )
+      .map((r) => r.map((c) => `"${String(c).replace(/"/g, '""')}"`).join(","))
       .join("\n");
     const blob = new Blob([csv], { type: "text/csv" });
     const url = URL.createObjectURL(blob);
@@ -147,9 +142,7 @@ export default function AdminApplicationsPage() {
             >
               ← Back to dashboard
             </Link>
-            <h1 className="text-3xl font-bold text-white mt-1">
-              Applications
-            </h1>
+            <h1 className="text-3xl font-bold text-white mt-1">Applications</h1>
             <p className="text-[#7a7270] mt-1">
               {items.length} leads · sorted by score
             </p>
@@ -178,9 +171,7 @@ export default function AdminApplicationsPage() {
           </div>
           <select
             value={filters.track}
-            onChange={(e) =>
-              setFilters({ ...filters, track: e.target.value })
-            }
+            onChange={(e) => setFilters({ ...filters, track: e.target.value })}
             className="px-4 py-2.5 bg-[#0d0d0d] border border-[#333333] rounded-lg focus:ring-2 focus:ring-[#c9a84c] outline-none text-white text-sm"
           >
             <option value="all">All tracks</option>
@@ -422,9 +413,7 @@ function ApplicationDrawer({
             </Row>
             <Row label="School">{application.school}</Row>
             <Row label="Level">{application.level}</Row>
-            <Row label="Track">
-              {TRACK_LABELS[application.track]}
-            </Row>
+            <Row label="Track">{TRACK_LABELS[application.track]}</Row>
           </Section>
 
           <Section title="Visibility & Experience">
@@ -457,9 +446,7 @@ function ApplicationDrawer({
 
           <Section title="Goals & Intent">
             <Row label="Goal">
-              <span className="whitespace-pre-line">
-                {application.goal}
-              </span>
+              <span className="whitespace-pre-line">{application.goal}</span>
             </Row>
             <Row label="Ready to commit">
               {application.ready_to_commit ? "Yes" : "No"}
