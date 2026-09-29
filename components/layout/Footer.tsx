@@ -147,6 +147,94 @@ export default function AdminApplicationsPage() {
               {items.length} leads · sorted by score
             </p>
           </div>
+<<<<<<< HEAD
+=======
+
+          {/* Quick Navigation (Col 2: Span 3) */}
+          <div className="md:col-span-3 space-y-4">
+            <h4 className="text-xs font-bold uppercase tracking-wider text-white">
+              Navigation
+            </h4>
+            <ul className="space-y-2.5 text-sm">
+              <li>
+                <button
+                  type="button"
+                  onClick={() => handleSectionScroll("about")}
+                  className="hover:text-[#c9a84c] transition-colors"
+                >
+                  About Us
+                </button>
+              </li>
+              <li>
+                <button
+                  type="button"
+                  onClick={() => handleSectionScroll("programs")}
+                  className="hover:text-[#c9a84c] transition-colors"
+                >
+                  Programs &amp; Tracks
+                </button>
+              </li>
+              <li>
+                <Link
+                  href="/academy"
+                  className="hover:text-[#c9a84c] transition-colors inline-flex items-center gap-1.5"
+                >
+                  <span>Academy</span>
+                  <span className="text-[10px] px-1.5 py-0.5 rounded bg-[#c9a84c]/10 text-[#c9a84c] border border-[#c9a84c]/20">
+                    Waitlist
+                  </span>
+                </Link>
+              </li>
+              <li>
+                <Link
+                  href="/library"
+                  className="hover:text-[#c9a84c] transition-colors"
+                >
+                  Resource Library
+                </Link>
+              </li>
+            </ul>
+          </div>
+
+          {/* Contact Details (Col 3: Span 4) */}
+          <div className="md:col-span-4 space-y-4">
+            <h4 className="text-xs font-bold uppercase tracking-wider text-white">
+              Get in Touch
+            </h4>
+            <div className="space-y-3 text-sm">
+              <div className="flex items-start gap-3">
+                <Mail className="w-4 h-4 text-[#c9a84c] shrink-0 mt-0.5" />
+                <a
+                  href="mailto:nextwaveglobalinfo@gmail.com"
+                  className="hover:text-white transition-colors break-all"
+                >
+                  nextwaveglobalinfo@gmail.com
+                </a>
+              </div>
+              <div className="flex items-start gap-3">
+                <MapPin className="w-4 h-4 text-[#c9a84c] shrink-0 mt-0.5" />
+                <span>Virtual &amp; Worldwide</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Bottom Bar: Copyright, Admin & Back-to-Top */}
+        <div className="pt-8 flex flex-col sm:flex-row items-center justify-between gap-4">
+          <div className="flex items-center gap-3 text-xs tracking-wider text-[#636363]">
+            <span>
+              © {new Date().getFullYear()} Nextwave Global. All rights reserved.
+            </span>
+            <span>•</span>
+            <Link
+              href="/admin"
+              className="text-[#636363] hover:text-[#c9a84c] transition-colors text-[11px] uppercase tracking-widest"
+            >
+              Admin
+            </Link>
+          </div>
+
+>>>>>>> 68839c0 (style: link admin page to footer)
           <button
             onClick={exportCSV}
             className="flex items-center gap-2 px-4 py-2 bg-[#c9a84c] text-[#0d0d0d] rounded-lg font-semibold"
