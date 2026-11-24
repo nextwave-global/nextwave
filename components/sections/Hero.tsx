@@ -15,7 +15,7 @@ const item = { hidden: { opacity: 0, y: 30 }, show: { opacity: 1, y: 0 } };
 
 const ACADEMY_URL =
   process.env.NEXT_PUBLIC_ACADEMY_URL ??
-  "https://nextwave-academy-nine.vercel.app";
+  "https://nextwaveglobalacademy.vercel.app/";
 
 export default function Hero() {
   const [featured, setFeatured] = useState<{
