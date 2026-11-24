@@ -13,7 +13,7 @@ const NAV_ITEMS = [
 
 const ACADEMY_URL =
   process.env.NEXT_PUBLIC_ACADEMY_URL ??
-  "https://nextwave-academy-nine.vercel.app";
+  "https://nextwaveglobalacademy.vercel.app/";
 
 export default function Navbar() {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
