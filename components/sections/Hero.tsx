@@ -2,7 +2,7 @@
 import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import Link from "next/link";
-import { ArrowRight, Sparkles, BookOpen, GraduationCap } from "lucide-react";
+import { ArrowRight, BookOpen, GraduationCap } from "lucide-react";
 
 const container = {
   hidden: { opacity: 0 },
@@ -12,6 +12,10 @@ const container = {
   },
 };
 const item = { hidden: { opacity: 0, y: 30 }, show: { opacity: 1, y: 0 } };
+
+const ACADEMY_URL =
+  process.env.NEXT_PUBLIC_ACADEMY_URL ??
+  "https://nextwave-academy-nine.vercel.app";
 
 export default function Hero() {
   const [featured, setFeatured] = useState<{
@@ -25,10 +29,17 @@ export default function Hero() {
       .then((r) => r.json())
       .then((d) => {
         const events = d.events ?? [];
+        type ApiEvent = {
+          title: string;
+          date: string;
+          slug: string;
+          is_featured?: boolean;
+          computed_status?: string;
+        };
         const f =
-          events.find((e: any) => e.is_featured) ??
-          events.find((e: any) =>
-            ["upcoming", "live"].includes(e.computed_status),
+          (events as ApiEvent[]).find((e) => e.is_featured) ??
+          (events as ApiEvent[]).find((e) =>
+            ["upcoming", "live"].includes(e.computed_status ?? ""),
           );
         if (f) setFeatured({ title: f.title, date: f.date, slug: f.slug });
       })
@@ -75,14 +86,19 @@ export default function Hero() {
         </div>
 
         <div className="max-w-5xl mx-auto text-center relative z-10 py-12">
-          <motion.div
-            variants={item}
-            className="inline-flex items-center gap-2 bg-[#c9a84c]/10 text-[#c9a84c] px-4 py-2 rounded-full border border-[#c9a84c]/20 mb-6"
-          >
-            <Sparkles className="w-4 h-4" />
-            <span className="text-xs font-bold uppercase tracking-widest">
-              Empowering Students Worldwide
-            </span>
+          <motion.div variants={item} className="mb-6">
+            <a
+              href={ACADEMY_URL}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-2 bg-green-500/10 hover:bg-green-500/20 text-green-400 px-4 py-2 rounded-full border border-green-500/30 transition-colors group"
+            >
+              <span className="w-2 h-2 rounded-full bg-green-400 animate-pulse" />
+              <span className="text-xs font-bold uppercase tracking-widest">
+                Academy is live — Start learning
+              </span>
+              <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-1 transition-transform" />
+            </a>
           </motion.div>
 
           <motion.h1
@@ -100,21 +116,23 @@ export default function Hero() {
             variants={item}
             className="text-base sm:text-lg md:text-xl text-[#b8b0a8] mb-10 max-w-2xl mx-auto px-4"
           >
-            NextWave Global empowers students to thrive beyond the classroom —
-            and we&apos;re evolving into an academy.
+            Empowering students worldwide to thrive beyond the classroom — and
+            our academy is now live.
           </motion.p>
 
           <motion.div
             variants={item}
             className="flex flex-col sm:flex-row gap-4 justify-center items-center flex-wrap"
           >
-            <Link
-              href="/academy"
+            <a
+              href={ACADEMY_URL}
+              target="_blank"
+              rel="noopener noreferrer"
               className="inline-flex items-center justify-center gap-2 px-8 py-4 bg-[#c9a84c] hover:bg-[#a8873a] text-[#0d0d0d] font-bold rounded-full transition-all hover:shadow-lg hover:shadow-[#c9a84c]/25 active:scale-95 touch-manipulation min-h-[48px]"
             >
               <GraduationCap className="w-5 h-5" />
-              Join the Academy
-            </Link>
+              Go to Academy
+            </a>
             <Link
               href="/library"
               className="inline-flex items-center justify-center gap-2 px-8 py-4 bg-[#1a1a1a] hover:bg-[#2a2a2a] text-white font-bold rounded-full transition-all border border-[#333333] hover:border-[#c9a84c] active:scale-95 touch-manipulation min-h-[48px]"
