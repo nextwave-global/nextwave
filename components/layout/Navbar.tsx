@@ -11,6 +11,10 @@ const NAV_ITEMS = [
   { label: "Programs", id: "programs" },
 ];
 
+const ACADEMY_URL =
+  process.env.NEXT_PUBLIC_ACADEMY_URL ??
+  "https://nextwave-academy-nine.vercel.app";
+
 export default function Navbar() {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
@@ -80,14 +84,20 @@ export default function Navbar() {
               <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-[#c9a84c] transition-all duration-300 group-hover:w-full" />
             </Link>
 
-            <Link
-              href="/academy"
+            <a
+              href={ACADEMY_URL}
+              target="_blank"
+              rel="noopener noreferrer"
               className="flex items-center gap-1.5 hover:text-[#c9a84c] transition-colors duration-200 relative group"
             >
               <GraduationCap className="w-3.5 h-3.5" />
               Academy
+              <span className="ml-1 inline-flex items-center gap-1 rounded-full bg-green-500/15 border border-green-500/30 px-1.5 py-0.5 text-[9px] font-bold text-green-400 tracking-widest">
+                <span className="w-1 h-1 rounded-full bg-green-400 animate-pulse" />
+                LIVE
+              </span>
               <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-[#c9a84c] transition-all duration-300 group-hover:w-full" />
-            </Link>
+            </a>
             <Link
               href="/library"
               className="flex items-center gap-1.5 hover:text-[#c9a84c] transition-colors duration-200 relative group"
@@ -139,13 +149,19 @@ export default function Navbar() {
             <CalendarDays className="w-4 h-4" /> Events
           </Link>
 
-          <Link
-            href="/academy"
+          <a
+            href={ACADEMY_URL}
+            target="_blank"
+            rel="noopener noreferrer"
             onClick={() => setIsMobileMenuOpen(false)}
             className="w-full py-4 px-4 text-sm font-semibold uppercase tracking-widest text-[#b8b0a8] hover:text-[#c9a84c] hover:bg-[#1a1a1a] rounded-xl transition-all touch-manipulation flex items-center gap-2"
           >
             <GraduationCap className="w-4 h-4" /> Academy
-          </Link>
+            <span className="ml-auto inline-flex items-center gap-1 rounded-full bg-green-500/15 border border-green-500/30 px-2 py-0.5 text-[9px] font-bold text-green-400 tracking-widest">
+              <span className="w-1 h-1 rounded-full bg-green-400 animate-pulse" />
+              LIVE
+            </span>
+          </a>
           <Link
             href="/library"
             onClick={() => setIsMobileMenuOpen(false)}

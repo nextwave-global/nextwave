@@ -1,6 +1,5 @@
 "use client";
-import { useState } from "react";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion } from "framer-motion";
 import Link from "next/link";
 import {
   BookOpen,
@@ -10,19 +9,15 @@ import {
   ArrowRight,
   CheckCircle,
   Users,
-  Mail,
-  Phone,
-  User,
-  PenTool,
-  Video,
-  Palette,
-  Share2,
+  GraduationCap,
   Rocket,
-  Loader2,
-  Clock,
 } from "lucide-react";
 import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
+
+const ACADEMY_URL =
+  process.env.NEXT_PUBLIC_ACADEMY_URL ??
+  "https://nextwave-academy-nine.vercel.app";
 
 const PILLARS = [
   {
@@ -46,81 +41,33 @@ const PILLARS = [
 ];
 const TRACKS = [
   {
-    title: "Copywriting & Lead Generation",
-    desc: "Write copy that converts and build systems that bring in qualified leads.",
-    icon: PenTool,
+    title: "Tech & Product",
+    desc: "Web dev, product thinking, AI tools, and shipping real projects.",
+    icon: Rocket,
   },
   {
-    title: "Mobile Video Editing",
-    desc: "Shoot, cut, and publish scroll-stopping videos entirely from your phone.",
-    icon: Video,
+    title: "Business & Sales",
+    desc: "Negotiation, monetization, freelancing, and building offers.",
+    icon: TrendingUp,
   },
   {
-    title: "Brand Designing",
-    desc: "Create logos, visuals, and brand identities that stand out.",
-    icon: Palette,
+    title: "Leadership",
+    desc: "Communication, influence, and leading teams with clarity.",
+    icon: Crown,
   },
   {
-    title: "Social Media Management",
-    desc: "Grow, schedule, and monetize social accounts for brands and clients.",
-    icon: Share2,
+    title: "Personal Growth",
+    desc: "Productivity, discipline, mindset, and financial intelligence.",
+    icon: GraduationCap,
   },
-];
-const INTERESTS = [
-  "Copywriting & Lead Generation",
-  "Mobile Video Editing",
-  "Brand Designing",
-  "Social Media Management",
-  "Not sure yet",
 ];
 
 export default function AcademyClient() {
-  const [form, setForm] = useState({
-    fullName: "",
-    email: "",
-    phone: "",
-    interest: "Not sure yet",
-  });
-  const [status, setStatus] = useState<
-    "idle" | "loading" | "success" | "error"
-  >("idle");
-  const [message, setMessage] = useState("");
-
-  const handleChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>,
-  ) => {
-    setForm((prev) => ({ ...prev, [e.target.name]: e.target.value }));
-  };
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setStatus("loading");
-    setMessage("");
-    try {
-      const res = await fetch("/api/academy/waitlist", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(form),
-      });
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.error || "Something went wrong");
-      setStatus("success");
-      setMessage(data.message || "You're on the list!");
-      setForm({ fullName: "", email: "", phone: "", interest: "Not sure yet" });
-    } catch (err) {
-      setStatus("error");
-      setMessage(
-        err instanceof Error ? err.message : "Failed to join. Try again.",
-      );
-    }
-  };
-
   return (
     <main className="min-h-screen bg-[#0d0d0d] overflow-x-hidden">
       <Navbar />
 
-      {/* ── HERO ─────────────────────────────────────────────── */}
-      <section className="relative pt-32 pb-16 px-4 sm:px-6 overflow-hidden">
+      <section className="relative pt-32 pb-20 px-4 sm:px-6 overflow-hidden">
         <div className="absolute inset-0 pointer-events-none">
           <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-[#c9a84c]/5 rounded-full blur-3xl" />
           <div className="absolute bottom-0 right-1/4 w-80 h-80 bg-[#c9a84c]/3 rounded-full blur-3xl" />
@@ -129,23 +76,23 @@ export default function AcademyClient() {
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            className="inline-flex items-center gap-2 bg-[#c9a84c]/10 text-[#c9a84c] px-4 py-2 rounded-full border border-[#c9a84c]/20 mb-6"
+            className="inline-flex items-center gap-2 bg-green-500/10 text-green-400 px-4 py-2 rounded-full border border-green-500/30 mb-6"
           >
-            <Sparkles className="w-4 h-4" />
+            <span className="w-2 h-2 rounded-full bg-green-400 animate-pulse" />
             <span className="text-xs font-bold uppercase tracking-widest">
-              A New Chapter
+              We&apos;re Live
             </span>
           </motion.div>
           <motion.h1
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.1 }}
-            className="text-4xl sm:text-6xl md:text-7xl font-black tracking-tighter leading-[1.05] mb-5 text-white"
+            className="text-4xl sm:text-6xl md:text-7xl font-black tracking-tighter leading-[1.05] mb-6 text-white"
           >
             NextWave <span className="text-[#c9a84c]">Academy</span>
             <br />
             <span className="text-2xl sm:text-4xl md:text-5xl font-bold text-[#b8b0a8]">
-              Coming Soon
+              Now open
             </span>
           </motion.h1>
           <motion.p
@@ -154,34 +101,26 @@ export default function AcademyClient() {
             transition={{ delay: 0.2 }}
             className="text-base sm:text-lg md:text-xl text-[#b8b0a8] mb-8 max-w-2xl mx-auto"
           >
-            We&apos;re evolving from events into a full academy. But the first
-            class is happening now - and it&apos;s free.
+            We&apos;ve evolved from events into a full academy. No waitlist —
+            head straight to the academy and start learning today.
           </motion.p>
-
-          {/* Hero CTA - primary action, above the fold */}
           <motion.div
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.3 }}
-            className="flex flex-col sm:flex-row items-center justify-center gap-4 mb-10"
+            className="mb-10"
           >
-            <Link
-              href="/academy/apply"
-              className="group inline-flex items-center justify-center gap-2 px-8 py-4 bg-[#c9a84c] hover:bg-[#a8873a] text-[#0d0d0d] font-bold rounded-full transition-all touch-manipulation active:scale-95 shadow-[0_0_50px_-12px_rgba(201,168,76,0.5)]"
-            >
-              <Sparkles className="w-5 h-5" />
-              Apply for the Free Class
-              <ArrowRight className="w-5 h-5 transition-transform group-hover:translate-x-1" />
-            </Link>
             <a
-              href="#waitlist"
-              className="inline-flex items-center gap-2 text-sm text-[#b8b0a8] hover:text-[#c9a84c] font-semibold transition-colors"
+              href={ACADEMY_URL}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center justify-center gap-2 px-8 py-4 bg-[#c9a84c] hover:bg-[#a8873a] text-[#0d0d0d] font-bold rounded-full transition-all hover:shadow-lg hover:shadow-[#c9a84c]/25 active:scale-95 touch-manipulation min-h-[48px]"
             >
-              <Clock className="w-4 h-4" />
-              Not ready? Join the waitlist
+              <GraduationCap className="w-5 h-5" />
+              Go to the Academy
+              <ArrowRight className="w-5 h-5" />
             </a>
           </motion.div>
-
           <motion.div
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
@@ -190,23 +129,22 @@ export default function AcademyClient() {
           >
             <span className="flex items-center gap-2">
               <CheckCircle className="w-4 h-4 text-[#c9a84c]" />
-              100% free
+              Live courses
             </span>
             <span className="w-px h-4 bg-[#333333]" />
             <span className="flex items-center gap-2">
               <Users className="w-4 h-4 text-[#c9a84c]" />
-              Limited seats
+              Global community
             </span>
             <span className="w-px h-4 bg-[#333333]" />
             <span className="flex items-center gap-2">
-              <Mail className="w-4 h-4 text-[#c9a84c]" />
-              Email + WhatsApp updates
+              <GraduationCap className="w-4 h-4 text-[#c9a84c]" />
+              Certificates on completion
             </span>
           </motion.div>
         </div>
       </section>
 
-      {/* ── MISSION ──────────────────────────────────────────── */}
       <section className="py-16 md:py-24 px-4 sm:px-6 bg-[#1a1a1a]">
         <div className="max-w-7xl mx-auto">
           <div className="text-center mb-12">
@@ -244,10 +182,8 @@ export default function AcademyClient() {
         </div>
       </section>
 
-      {/* ── CURRICULUM + ACTION ──────────────────────────────── */}
       <section className="py-16 md:py-24 px-4 sm:px-6 bg-[#0d0d0d]">
         <div className="max-w-7xl mx-auto grid lg:grid-cols-2 gap-12 lg:gap-16 items-start">
-          {/* Left - curriculum */}
           <div>
             <div className="inline-flex items-center gap-2 text-[#c9a84c] text-xs font-bold uppercase tracking-widest mb-4">
               <Sparkles className="w-4 h-4" />
@@ -257,7 +193,7 @@ export default function AcademyClient() {
               What You&apos;ll <span className="text-[#c9a84c]">Master</span>
             </h2>
             <p className="text-[#7a7270] mb-8 text-sm md:text-base">
-              Four focused tracks. Pick the one that fits you best.
+              Four focused tracks designed to take you from curious to capable.
             </p>
             <div className="space-y-4">
               {TRACKS.map((track, i) => (
@@ -281,245 +217,73 @@ export default function AcademyClient() {
             </div>
           </div>
 
-          {/* Right - two clear paths */}
           <motion.div
-            id="waitlist"
             initial={{ opacity: 0, y: 30 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
-            className="lg:sticky lg:top-24 space-y-5"
+            className="bg-[#1a1a1a] border border-[#c9a84c]/30 rounded-2xl p-6 md:p-8 lg:sticky lg:top-24"
           >
-            {/* PATH 1 - PRIMARY: Apply now */}
-            <div className="relative rounded-2xl p-6 md:p-7 bg-gradient-to-br from-[#c9a84c]/12 to-[#c9a84c]/[0.03] border border-[#c9a84c]/30 overflow-hidden">
-              <div className="absolute top-0 right-0 px-3 py-1 bg-[#c9a84c] text-[#0d0d0d] text-[10px] font-black uppercase tracking-widest rounded-bl-lg">
-                Open now
-              </div>
-
-              <div className="mb-5 pr-16">
-                <h3 className="text-2xl font-bold text-white mb-1.5">
-                  Apply for the Free Class
-                </h3>
-                <p className="text-sm text-[#b8b0a8] leading-relaxed">
-                  Skip the wait. The first class is live - apply and you&apos;ll
-                  hear back within 48 hours.
-                </p>
-              </div>
-
-              <Link
-                href="/academy/apply"
-                className="group flex items-center justify-center gap-2 w-full px-6 py-4 bg-[#c9a84c] hover:bg-[#a8873a] text-[#0d0d0d] font-bold rounded-xl transition-all touch-manipulation active:scale-[0.98] shadow-[0_0_40px_-10px_rgba(201,168,76,0.5)]"
-              >
-                <Sparkles className="w-4 h-4" />
-                Start my application
-                <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-1" />
-              </Link>
-
-              <div className="flex items-center justify-center gap-4 mt-4 text-[11px] text-[#b8b0a8]">
-                <span className="flex items-center gap-1.5">
-                  <CheckCircle className="w-3.5 h-3.5 text-[#c9a84c]" />
-                  Free
-                </span>
-                <span className="w-px h-3 bg-[#333333]" />
-                <span className="flex items-center gap-1.5">
-                  <Clock className="w-3.5 h-3.5 text-[#c9a84c]" />
-                  2-min form
-                </span>
-                <span className="w-px h-3 bg-[#333333]" />
-                <span className="flex items-center gap-1.5">
-                  <Users className="w-3.5 h-3.5 text-[#c9a84c]" />
-                  Limited seats
-                </span>
-              </div>
+            <div className="inline-flex items-center gap-2 bg-green-500/10 text-green-400 px-3 py-1.5 rounded-full border border-green-500/30 mb-3">
+              <span className="w-2 h-2 rounded-full bg-green-400 animate-pulse" />
+              <span className="text-[10px] font-bold uppercase tracking-widest">
+                We&apos;re Live
+              </span>
             </div>
-
-            {/* PATH 2 - SECONDARY: Waitlist, visually quieter */}
-            <div className="rounded-2xl p-6 bg-[#1a1a1a] border border-[#333333]">
-              <div className="mb-5">
-                <div className="inline-flex items-center gap-2 bg-[#7a7270]/10 text-[#b8b0a8] px-3 py-1.5 rounded-full border border-[#333333] mb-3">
-                  <Clock className="w-3.5 h-3.5" />
-                  <span className="text-[10px] font-bold uppercase tracking-widest">
-                    Not ready yet?
-                  </span>
-                </div>
-                <h3 className="text-xl font-bold text-white mb-2">
-                  Join the Waitlist
-                </h3>
-                <p className="text-sm text-[#7a7270]">
-                  Get notified when the full academy opens. No application
-                  needed.
-                </p>
-              </div>
-
-              <AnimatePresence mode="wait">
-                {status === "success" ? (
-                  <motion.div
-                    key="success"
-                    initial={{ opacity: 0, scale: 0.95 }}
-                    animate={{ opacity: 1, scale: 1 }}
-                    exit={{ opacity: 0 }}
-                    className="text-center py-6"
-                  >
-                    <div className="bg-[#c9a84c]/10 p-4 rounded-full inline-flex mb-4 border border-[#c9a84c]/20">
-                      <CheckCircle className="w-10 h-10 text-[#c9a84c]" />
-                    </div>
-                    <h4 className="text-lg font-bold text-white mb-2">
-                      You&apos;re on the list! 🎉
-                    </h4>
-                    <p className="text-sm text-[#b8b0a8] mb-6">{message}</p>
-                    <button
-                      onClick={() => setStatus("idle")}
-                      className="text-xs text-[#c9a84c] hover:text-[#a8873a] font-semibold transition-colors"
-                    >
-                      Add another person →
-                    </button>
-                  </motion.div>
-                ) : (
-                  <motion.form
-                    key="form"
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: 1 }}
-                    exit={{ opacity: 0 }}
-                    onSubmit={handleSubmit}
-                    className="space-y-3.5"
-                  >
-                    <div>
-                      <label className="block text-[11px] font-semibold text-[#b8b0a8] mb-1.5 uppercase tracking-wider">
-                        Full Name <span className="text-red-400">*</span>
-                      </label>
-                      <div className="relative">
-                        <User
-                          size={16}
-                          className="absolute left-3 top-1/2 -translate-y-1/2 text-[#7a7270]"
-                        />
-                        <input
-                          type="text"
-                          name="fullName"
-                          required
-                          value={form.fullName}
-                          onChange={handleChange}
-                          placeholder="Your full name"
-                          className="w-full pl-9 pr-3 py-3 bg-[#0d0d0d] border border-[#333333] rounded-xl focus:border-[#c9a84c] focus:ring-2 focus:ring-[#c9a84c]/20 outline-none text-white placeholder:text-[#7a7270] text-sm"
-                        />
-                      </div>
-                    </div>
-                    <div>
-                      <label className="block text-[11px] font-semibold text-[#b8b0a8] mb-1.5 uppercase tracking-wider">
-                        Email <span className="text-red-400">*</span>
-                      </label>
-                      <div className="relative">
-                        <Mail
-                          size={16}
-                          className="absolute left-3 top-1/2 -translate-y-1/2 text-[#7a7270]"
-                        />
-                        <input
-                          type="email"
-                          name="email"
-                          required
-                          value={form.email}
-                          onChange={handleChange}
-                          placeholder="you@example.com"
-                          className="w-full pl-9 pr-3 py-3 bg-[#0d0d0d] border border-[#333333] rounded-xl focus:border-[#c9a84c] focus:ring-2 focus:ring-[#c9a84c]/20 outline-none text-white placeholder:text-[#7a7270] text-sm"
-                        />
-                      </div>
-                    </div>
-                    <div>
-                      <label className="block text-[11px] font-semibold text-[#b8b0a8] mb-1.5 uppercase tracking-wider">
-                        WhatsApp Number <span className="text-red-400">*</span>
-                      </label>
-                      <div className="relative">
-                        <Phone
-                          size={16}
-                          className="absolute left-3 top-1/2 -translate-y-1/2 text-[#7a7270]"
-                        />
-                        <input
-                          type="tel"
-                          name="phone"
-                          required
-                          value={form.phone}
-                          onChange={handleChange}
-                          placeholder="+234 800 000 0000"
-                          className="w-full pl-9 pr-3 py-3 bg-[#0d0d0d] border border-[#333333] rounded-xl focus:border-[#c9a84c] focus:ring-2 focus:ring-[#c9a84c]/20 outline-none text-white placeholder:text-[#7a7270] text-sm"
-                        />
-                      </div>
-                      <p className="text-[10px] text-[#7a7270] mt-1.5">
-                        Include your country code (e.g. +234, +1, +44)
-                      </p>
-                    </div>
-                    <div>
-                      <label className="block text-[11px] font-semibold text-[#b8b0a8] mb-1.5 uppercase tracking-wider">
-                        I&apos;m most interested in
-                      </label>
-                      <select
-                        name="interest"
-                        value={form.interest}
-                        onChange={handleChange}
-                        className="w-full px-3 py-3 bg-[#0d0d0d] border border-[#333333] rounded-xl focus:border-[#c9a84c] focus:ring-2 focus:ring-[#c9a84c]/20 outline-none text-white text-sm"
-                      >
-                        {INTERESTS.map((i) => (
-                          <option key={i} value={i}>
-                            {i}
-                          </option>
-                        ))}
-                      </select>
-                    </div>
-                    {status === "error" && (
-                      <div className="p-3 bg-red-500/10 border border-red-500/20 rounded-xl text-red-400 text-xs">
-                        {message}
-                      </div>
-                    )}
-                    <button
-                      type="submit"
-                      disabled={status === "loading"}
-                      className="w-full py-3.5 bg-[#2a2a2a] hover:bg-[#333333] text-white font-bold rounded-xl border border-[#333333] hover:border-[#c9a84c]/50 transition-all disabled:opacity-50 flex items-center justify-center gap-2 touch-manipulation active:scale-[0.98]"
-                    >
-                      {status === "loading" ? (
-                        <>
-                          <Loader2 className="w-4 h-4 animate-spin" />
-                          Joining...
-                        </>
-                      ) : (
-                        <>
-                          Join the Waitlist
-                          <ArrowRight className="w-4 h-4" />
-                        </>
-                      )}
-                    </button>
-                    <p className="text-[10px] text-[#7a7270] text-center">
-                      We&apos;ll only use your info to contact you about the
-                      academy. No spam.
-                    </p>
-                  </motion.form>
-                )}
-              </AnimatePresence>
-            </div>
+            <h3 className="text-2xl font-bold text-white mb-2">
+              The Academy is open
+            </h3>
+            <p className="text-sm text-[#7a7270] mb-6">
+              No waitlist. No forms. Head straight to the academy and start
+              learning.
+            </p>
+            <a
+              href={ACADEMY_URL}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="w-full py-4 bg-[#c9a84c] hover:bg-[#a8873a] text-[#0d0d0d] font-bold rounded-xl transition-all flex items-center justify-center gap-2 touch-manipulation active:scale-95"
+            >
+              Go to the Academy
+              <ArrowRight className="w-5 h-5" />
+            </a>
+            <ul className="mt-6 space-y-2 text-xs text-[#7a7270]">
+              <li className="flex items-center gap-2">
+                <CheckCircle className="w-4 h-4 text-[#c9a84c]" />
+                Live courses &amp; tracks
+              </li>
+              <li className="flex items-center gap-2">
+                <CheckCircle className="w-4 h-4 text-[#c9a84c]" />
+                Free early-access pricing
+              </li>
+              <li className="flex items-center gap-2">
+                <CheckCircle className="w-4 h-4 text-[#c9a84c]" />
+                Certificates on completion
+              </li>
+            </ul>
           </motion.div>
         </div>
       </section>
 
-      {/* ── CLOSING CTA ──────────────────────────────────────── */}
       <section className="py-16 px-4 sm:px-6 bg-[#1a1a1a]">
         <div className="max-w-3xl mx-auto text-center">
           <h3 className="text-2xl md:text-3xl font-bold text-white mb-4">
-            Ready when you are
+            In the meantime, explore what we&apos;ve built
           </h3>
           <p className="text-[#7a7270] mb-8 text-sm md:text-base">
-            The free class has limited seats. The waitlist doesn&apos;t.
+            Browse our free resource library or revisit past programs.
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <Link
-              href="/academy/apply"
-              className="group inline-flex items-center justify-center gap-2 px-8 py-4 bg-[#c9a84c] hover:bg-[#a8873a] text-[#0d0d0d] font-bold rounded-full transition-all touch-manipulation active:scale-95"
-            >
-              <Sparkles className="w-5 h-5" />
-              Apply for the Free Class
-              <ArrowRight className="w-5 h-5 transition-transform group-hover:translate-x-1" />
-            </Link>
-            <Link
               href="/library"
-              className="inline-flex items-center justify-center gap-2 px-8 py-4 bg-[#0d0d0d] hover:bg-[#2a2a2a] text-white font-bold rounded-full border border-[#333333] hover:border-[#c9a84c] transition-all touch-manipulation"
+              className="inline-flex items-center justify-center gap-2 px-8 py-4 bg-[#c9a84c] hover:bg-[#a8873a] text-[#0d0d0d] font-bold rounded-full transition-all touch-manipulation"
             >
               <BookOpen className="w-5 h-5" />
-              Browse the Library
+              Visit Library
+            </Link>
+            <Link
+              href="/#programs"
+              className="inline-flex items-center justify-center gap-2 px-8 py-4 bg-[#0d0d0d] hover:bg-[#2a2a2a] text-white font-bold rounded-full border border-[#333333] hover:border-[#c9a84c] transition-all touch-manipulation"
+            >
+              See Past Programs
             </Link>
           </div>
         </div>
