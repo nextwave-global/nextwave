@@ -17,7 +17,7 @@ import Footer from "@/components/layout/Footer";
 
 const ACADEMY_URL =
   process.env.NEXT_PUBLIC_ACADEMY_URL ??
-  "https://nextwave-academy-nine.vercel.app";
+  "https://nextwaveglobalacademy.vercel.app/";
 
 const PILLARS = [
   {
